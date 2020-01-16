@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,15 +15,15 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         public int _Interval { get; set; }
         private static System.Timers.Timer aTimer;
 
-        private List<IUploadTypeConfiguration> _foldersToUpload;
+        private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
 
         public PeriodicalStrategy(List<IUploadTypeConfiguration> foldersToUpload, IServerClient client, int interval)
         {
-            _foldersToUpload = foldersToUpload;
+            _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _client = client;
             _Interval = interval;
-            
+
         }
 
 
@@ -34,19 +35,32 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             aTimer.Elapsed += OnTimedEvent;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
+        
         }
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
+            
             foreach (var folder in _foldersToUpload.Select(f => f.LocalFolderPath))
             {
-                foreach (string fileName in Directory.GetFiles(folder))
+                var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == folder).Select(rm => rm.RemoteFolder).FirstOrDefault();
+                var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == folder).Select(r => r.FileMask).FirstOrDefault();
+               // TODO Add other parameters
+                foreach (string filePath in Directory.GetFiles(folder))
                 {
-                    var remoteFolder = _foldersToUpload.Select(rf => rf.RemoteFolder);
-                    _client.UploadFile($"{remoteFolder}{fileName}", folder);
-                }
-                
+                    string[] arraytmp  = filePath.Split('/');
+                    var fileName = arraytmp[arraytmp.Length - 1];
+                    if (fileName.Contains(fileMask))
+                    {
+                        //TODO Ask async
+                        _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
+                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{folder + "/"}{fileName}");
+                    }
              
+                   
+                }
+
+
             }
         }
     }
