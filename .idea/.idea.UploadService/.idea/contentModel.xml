@@ -12,6 +12,12 @@
               <e p="FTPServerConfiguration.cs" t="Include" />
             </e>
           </e>
+          <e p="UploadStrategies" t="Include">
+            <e p="IUploadStrategy.cs" t="Include" />
+            <e p="Implementations" t="Include">
+              <e p="PeriodicalStrategy.cs" t="Include" />
+            </e>
+          </e>
           <e p="UploadTypeConfgurations" t="Include">
             <e p="IUploadTypeConfiguration.cs" t="Include" />
             <e p="Implementations" t="Include">
@@ -27,6 +33,10 @@
           <e p="launchSettings.json" t="Include" />
         </e>
         <e p="UploadService.csproj" t="IncludeRecursive" />
+        <e p="Utilities" t="Include">
+          <e p="FTPClient.cs" t="Include" />
+          <e p="IServerClient.cs" t="Include" />
+        </e>
         <e p="Worker.cs" t="Include" />
         <e p="appsettings.Development.json" t="Include" />
         <e p="appsettings.json" t="Include" />
