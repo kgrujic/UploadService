@@ -5,6 +5,15 @@
     <e p="$USER_HOME$/.Rider2019.3/system/resharper-host/local/Transient/ReSharperHost/v193/SolutionCaches/_UploadService.-2021611369.00" t="ExcludeRecursive" />
     <e p="$PROJECT_DIR$" t="IncludeFlat">
       <e p="UploadService" t="IncludeRecursive">
+        <e p="Configurations" t="Include">
+          <e p="FileTypeConfgurations" t="Include" />
+          <e p="ServerConfigurations" t="Include">
+            <e p="IServerConfiguration.cs" t="Include" />
+            <e p="Implementations" t="Include">
+              <e p="FTPServerConfiguration.cs" t="Include" />
+            </e>
+          </e>
+        </e>
         <e p="Program.cs" t="Include" />
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
