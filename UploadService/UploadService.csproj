@@ -8,8 +8,4 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.1" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Configurations\FileTypeConfgurations" />
-    </ItemGroup>
 </Project>

@@ -6,11 +6,19 @@
     <e p="$PROJECT_DIR$" t="IncludeFlat">
       <e p="UploadService" t="IncludeRecursive">
         <e p="Configurations" t="Include">
-          <e p="FileTypeConfgurations" t="Include" />
           <e p="ServerConfigurations" t="Include">
             <e p="IServerConfiguration.cs" t="Include" />
             <e p="Implementations" t="Include">
               <e p="FTPServerConfiguration.cs" t="Include" />
+            </e>
+          </e>
+          <e p="UploadTypeConfgurations" t="Include">
+            <e p="IUploadTypeConfiguration.cs" t="Include" />
+            <e p="Implementations" t="Include">
+              <e p="PeriodicalUpload.cs" t="Include" />
+              <e p="TimeSpecificUpload.cs" t="Include" />
+              <e p="UploadOnChange.cs" t="Include" />
+              <e p="UploadOnCreate.cs" t="Include" />
             </e>
           </e>
         </e>
