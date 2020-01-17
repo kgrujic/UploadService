@@ -10,7 +10,9 @@ namespace UploadService.Utilities
         private string user = null;
         private string pass = null;
         private FtpWebRequest ftpRequest = null;
+        private FtpWebRequest ftpRequestDelete = null;
         private FtpWebResponse ftpResponse = null;
+        private FtpWebResponse ftpResponseDelete = null;
         private Stream ftpStream = null;
         private int bufferSize = 2048;
         
@@ -60,6 +62,7 @@ namespace UploadService.Utilities
                         ftpStream.Write(byteBuffer, 0, bytesSent);
                         bytesSent = localFileStream.Read(byteBuffer, 0, bufferSize);
                     }
+                    //Console.WriteLine(localFFile);
                 }
                 catch (Exception ex)
                 {
@@ -80,10 +83,11 @@ namespace UploadService.Utilities
         }
         public void delete(string deleteFile)
         {
+           
             try
             {
                 /* Create an FTP Request */
-                ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + deleteFile);
+                ftpRequest = (FtpWebRequest) WebRequest.Create(host + "/" + deleteFile);
                 /* Log in to the FTP Server with the User Name and Password Provided */
                 ftpRequest.Credentials = new NetworkCredential(user, pass);
                 /* When in doubt, use these options */
@@ -93,14 +97,44 @@ namespace UploadService.Utilities
                 /* Specify the Type of FTP Request */
                 ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
                 /* Establish Return Communication with the FTP Server */
-                ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                ftpResponse = (FtpWebResponse) ftpRequest.GetResponse();
                 /* Resource Cleanup */
                 ftpResponse.Close();
                 ftpRequest = null;
             }
-            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                
+                throw;
+                Console.WriteLine(ex.ToString());
+            }
             return;
         }
 
+        public bool checkIfFileExists(string filePath)
+        {
+            bool exists = false;
+            var request = (FtpWebRequest)WebRequest.Create(host + "/" + filePath);
+            request.Credentials = new NetworkCredential("user", "pass");
+            request.Method = WebRequestMethods.Ftp.GetFileSize;
+            
+            try
+            {
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                exists = true;
+            }
+            catch (WebException ex)
+            {
+                FtpWebResponse response = (FtpWebResponse)ex.Response;
+                if (response.StatusCode ==
+                    FtpStatusCode.ActionNotTakenFileUnavailable)
+                {
+                    //Does not exist
+                }
+            }
+
+            return exists;
+        }
     }
 }

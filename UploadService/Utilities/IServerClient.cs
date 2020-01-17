@@ -4,5 +4,7 @@ namespace UploadService.Utilities
     {
         public void UploadFile(string remoteFile, string localFFile);
         public void delete(string deleteFile);
+        
+        public bool checkIfFileExists(string filePath);
     }
 }

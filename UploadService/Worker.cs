@@ -20,25 +20,27 @@ namespace UploadService
         private readonly ILogger<Worker> _logger;
 
         private static List<IUploadTypeConfiguration> periodical = new List<IUploadTypeConfiguration>();
+        //IServerConfiguration ftpServerConfiguration = new FTPServerConfiguration("ftp://10.251.65.37/","katarina","bajici");
         //private static IServerConfiguration ftpServerConfiguration = new FTPServerConfiguration("ftp://10.251.65.37/","katarina","bajici");
         //static IServerClient client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
-        private IUploadStrategy _strategy;
+        private IUploadStrategy _PeriodicalStrategy;
 
 
         public Worker(ILogger<Worker> logger)
         {
-            IServerConfiguration ftpServerConfiguration = new FTPServerConfiguration("ftp://10.251.65.37/","katarina","bajici");
-            IServerClient client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
-            periodical.Add(new PeriodicalUpload
-                {LocalFolderPath = "/home/katarina/Desktop/testfolder", RemoteFolder = "ftptestfolder", FileMask = ".txt"});
+            //IServerConfiguration ftpServerConfiguration = new FTPServerConfiguration("ftp://10.251.65.37/","katarina","bajici");
+            //Console.WriteLine(ftpServerConfiguration.HostAddress);
+            IServerClient client = new FTPClient("ftp://10.251.65.37/","katarina","bajici");
+            periodical.Add(new PeriodicalUpload {LocalFolderPath = "/home/katarina/Desktop/testfolder3", RemoteFolder = "ftptestfolder", FileMask = ".txt"}); 
+            periodical.Add(new PeriodicalUpload {LocalFolderPath = "/home/katarina/Desktop/testfolder2", RemoteFolder = "ftptestfolder", FileMask = ".txt"});
 
-             _strategy = new PeriodicalStrategy(periodical,client,10000);
+             _PeriodicalStrategy = new PeriodicalStrategy(periodical,client,4000);
             _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-             _strategy.Upload();
+             _PeriodicalStrategy.Upload();
             
             /*while (!stoppingToken.IsCancellationRequested)
             {
