@@ -30,7 +30,7 @@ namespace UploadService
         {
             //IServerConfiguration ftpServerConfiguration = new FTPServerConfiguration("ftp://10.251.65.37/","katarina","bajici");
             //Console.WriteLine(ftpServerConfiguration.HostAddress);
-            IServerClient client = new FTPClient("ftp://10.251.65.37/","katarina","bajici");
+            IServerClient client = new FTPClient("ftp://192.168.8.103/","katarina","bajici");
             periodical.Add(new PeriodicalUpload {LocalFolderPath = "/home/katarina/Desktop/testfolder3", RemoteFolder = "ftptestfolder", FileMask = ".txt"}); 
             periodical.Add(new PeriodicalUpload {LocalFolderPath = "/home/katarina/Desktop/testfolder2", RemoteFolder = "ftptestfolder", FileMask = ".txt"});
 

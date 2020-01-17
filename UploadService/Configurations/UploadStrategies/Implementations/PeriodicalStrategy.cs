@@ -42,61 +42,38 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
             
-           
             foreach (var folder in _foldersToUpload.Select(f => f.LocalFolderPath))
             {
-           
                 var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == folder).Select(rm => rm.RemoteFolder).FirstOrDefault();
                 var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == folder).Select(r => r.FileMask).FirstOrDefault();
-                
-                DirectoryInfo startDir = new DirectoryInfo(folder);
-                TraverseDirectory(startDir,fileMask, remoteFolder);
-              
+                // TODO Add other parameters
+                Console.WriteLine(folder);
+                foreach (string filePath in Directory.EnumerateFiles(folder,"*"+fileMask,SearchOption.AllDirectories))
+                {
+                    Console.WriteLine(filePath);
+                    string[] arraytmp  = filePath.Split('/');
+                    var fileName = arraytmp[arraytmp.Length - 1];
+                  
+                    
+                        //TODO Ask async
+                        if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
+                        {
+                            _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
+                            _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}",
+                                $"{folder + "/"}{fileName}");
+                        }
+                        else 
+                        {
+                            _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{folder + "/"}{fileName}");
+                        }
+                        
+                }
+
 
             }
+            
         }
         
-        public void TraverseDirectory(DirectoryInfo directoryInfo, string fileMask, string remoteFolder)
-        {
-            //var subdirectories = directoryInfo.EnumerateDirectories();
-
-            /*foreach (var subdirectory in subdirectories)
-            {
-                TraverseDirectory(subdirectory, fileMask,remoteFolder);
-            }*/
-
-            var files = directoryInfo.EnumerateFiles();
-          
-            foreach (var file in files)
-            {
-                HandleFile(file,fileMask, remoteFolder, directoryInfo.ToString());
-            }
-        }
-
-        void HandleFile(FileInfo file,string fileMask, string remoteFolder, string directory)
-        {
-            
-           
-            string[] arraytmp  = file.ToString().Split('/');
-            var fileName = arraytmp[arraytmp.Length - 1];
-            //TODO check before
-            if (fileName.Contains(fileMask))
-            {
-                
-                if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
-                {
-                    _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
-                    _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}",
-                        $"{directory.ToString() + "/"}{fileName}");
-                }
-                else 
-                {
-                    _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{directory.ToString() + "/"}{fileName}");
-                }
-
-                
-            }
-        }
     }
 }
 
