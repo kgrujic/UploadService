@@ -107,7 +107,7 @@ namespace UploadService.Utilities
                 Console.WriteLine(ex.ToString());
                 
                 throw;
-                Console.WriteLine(ex.ToString());
+                
             }
             return;
         }

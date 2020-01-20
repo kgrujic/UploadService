@@ -5,6 +5,7 @@
     <e p="$USER_HOME$/.Rider2019.3/system/resharper-host/local/Transient/ReSharperHost/v193/SolutionCaches/_UploadService.-2021611369.00" t="ExcludeRecursive" />
     <e p="$PROJECT_DIR$" t="IncludeFlat">
       <e p="UploadService" t="IncludeRecursive">
+        <e p="AppSettings.cs" t="Include" />
         <e p="Configurations" t="Include">
           <e p="ServerConfigurations" t="Include">
             <e p="IServerConfiguration.cs" t="Include" />
@@ -42,6 +43,7 @@
         <e p="appsettings.Development.json" t="Include" />
         <e p="appsettings.json" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="mono_crash.mem.15786.1.blob" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">

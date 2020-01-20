@@ -20,7 +20,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
 
-        public PeriodicalStrategy(List<IUploadTypeConfiguration> foldersToUpload, IServerClient client)
+        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client)
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _client = client;
@@ -38,6 +38,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 var timer = new System.Timers.Timer() {
                     Enabled = true,
                     Interval = VARIABLE.Interval,
+                    AutoReset = true
                 };
                  
                 timerMatrix.Add(timer);

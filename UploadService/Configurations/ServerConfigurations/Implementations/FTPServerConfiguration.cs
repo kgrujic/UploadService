@@ -2,6 +2,10 @@ namespace UploadService.Configurations.ServerConfiguration.Implementations
 {
     public class FTPServerConfiguration : IServerConfiguration
     {
+        public FTPServerConfiguration()
+        {
+        }
+
         public FTPServerConfiguration(string hostAddress, string username, string password)
         {
             HostAddress = hostAddress;
