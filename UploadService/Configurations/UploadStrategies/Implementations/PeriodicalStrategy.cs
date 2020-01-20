@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Resources;
@@ -13,65 +14,73 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class PeriodicalStrategy : IUploadStrategy
     {
-        public int _Interval { get; set; }
+       
         private static System.Timers.Timer aTimer;
 
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
 
-        public PeriodicalStrategy(List<IUploadTypeConfiguration> foldersToUpload, IServerClient client, int interval)
+        public PeriodicalStrategy(List<IUploadTypeConfiguration> foldersToUpload, IServerClient client)
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _client = client;
-            _Interval = interval;
+          
 
         }
-
-
+        
         public void Upload()
         {
-            // Create a timer with a two second interval.
-            aTimer = new System.Timers.Timer(_Interval);
-            // Hook up the Elapsed event for the timer. 
-            aTimer.Elapsed += OnTimedEvent;
-            aTimer.AutoReset = true;
-            aTimer.Enabled = true;
-        
-        }
-
-        private void OnTimedEvent(object sender, ElapsedEventArgs e)
-        {
             
-            foreach (var folder in _foldersToUpload.Select(f => f.LocalFolderPath))
+            List<Timer> timerMatrix = new List<Timer>();
+
+            foreach (var VARIABLE in _foldersToUpload)
             {
-                var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == folder).Select(rm => rm.RemoteFolder).FirstOrDefault();
-                var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == folder).Select(r => r.FileMask).FirstOrDefault();
+                var timer = new System.Timers.Timer() {
+                    Enabled = true,
+                    Interval = VARIABLE.Interval,
+                };
+                 
+                timerMatrix.Add(timer);
+
+                timer.Elapsed += (sender, e) =>
+                {
+
+                    var path = VARIABLE.LocalFolderPath;
+                    OnTimedEvent(path);
+                    
+                };
+            }
+            
+        }
+        
+        
+        private void OnTimedEvent(string localFolderPath)
+        {
+                var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(rm => rm.RemoteFolder).FirstOrDefault();
+                var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.FileMask).FirstOrDefault();
                 // TODO Add other parameters
-                Console.WriteLine(folder);
-                foreach (string filePath in Directory.EnumerateFiles(folder,"*"+fileMask,SearchOption.AllDirectories))
+                Console.WriteLine(localFolderPath);
+                foreach (string filePath in Directory.EnumerateFiles(localFolderPath,"*"+fileMask,SearchOption.AllDirectories))
                 {
                     Console.WriteLine(filePath);
                     string[] arraytmp  = filePath.Split('/');
                     var fileName = arraytmp[arraytmp.Length - 1];
                   
                     
-                        //TODO Ask async
-                        if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
-                        {
-                            _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
-                            _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}",
-                                $"{folder + "/"}{fileName}");
-                        }
-                        else 
-                        {
-                            _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{folder + "/"}{fileName}");
-                        }
+                    //TODO Ask async
+                    if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
+                    {
+                        _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
+                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}",
+                            $"{localFolderPath + "/"}{fileName}");
+                    }
+                    else 
+                    {
+                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{localFolderPath + "/"}{fileName}");
+                    }
                         
                 }
-
-
-            }
-            
+                
         }
         
     }
