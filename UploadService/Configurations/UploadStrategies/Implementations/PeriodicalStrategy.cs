@@ -3,28 +3,31 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Resources;
 using System.Threading.Tasks;
 using System.Timers;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Utilities;
+using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class PeriodicalStrategy : IUploadStrategy
     {
        
-        private static System.Timers.Timer aTimer;
+        private static Timer aTimer;
 
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
+        private IOHelper _ioHelper;
 
         public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client)
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _client = client;
-          
+            _ioHelper = new IOHelper();
 
         }
         
@@ -59,30 +62,44 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
                 var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(rm => rm.RemoteFolder).FirstOrDefault();
                 var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.FileMask).FirstOrDefault();
-                // TODO Add other parameters
-                Console.WriteLine(localFolderPath);
-                foreach (string filePath in Directory.EnumerateFiles(localFolderPath,"*"+fileMask,SearchOption.AllDirectories))
+                var archiveFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.ArchiveFolder).FirstOrDefault();
+                var cleanUpDays = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.CleanUpPeriodDays).FirstOrDefault();
+                _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+                
+                foreach (string filePath in Directory.EnumerateFiles(localFolderPath,"*"+ fileMask,SearchOption.AllDirectories))
                 {
-                    Console.WriteLine(filePath);
+                   
                     string[] arraytmp  = filePath.Split('/');
                     var fileName = arraytmp[arraytmp.Length - 1];
-                  
+                    
+                    var remoteFilePath = $"{"home/katarina/" + remoteFolder + "/"}{fileName}";
+                    var localFilePath = $"{localFolderPath + "/"}{fileName}";
+                   
                     
                     //TODO Ask async
-                    if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
+                    if (_client.checkIfFileExists(remoteFilePath))
                     {
-                        _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
-                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}",
-                            $"{localFolderPath + "/"}{fileName}");
+                        _client.delete(remoteFilePath);
+                        _client.UploadFile(remoteFilePath, localFilePath);
+                        _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
+                        _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
                     }
                     else 
                     {
-                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{localFolderPath + "/"}{fileName}");
+                        _client.UploadFile(remoteFilePath, localFilePath);
+                        _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
+                        _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
                     }
                         
                 }
                 
         }
+
+        
+
+       
+
+       
         
     }
 }

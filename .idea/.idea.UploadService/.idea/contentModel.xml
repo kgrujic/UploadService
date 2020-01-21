@@ -37,13 +37,15 @@
         <e p="UploadService.csproj" t="IncludeRecursive" />
         <e p="Utilities" t="Include">
           <e p="FTPClient.cs" t="Include" />
+          <e p="IO Helpers" t="Include">
+            <e p="IOHelper.cs" t="Include" />
+          </e>
           <e p="IServerClient.cs" t="Include" />
         </e>
         <e p="Worker.cs" t="Include" />
         <e p="appsettings.Development.json" t="Include" />
         <e p="appsettings.json" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
-        <e p="mono_crash.mem.15786.1.blob" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">

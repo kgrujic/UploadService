@@ -6,5 +6,7 @@ namespace UploadService.Utilities
         public void delete(string deleteFile);
         
         public bool checkIfFileExists(string filePath);
+
+        public bool directoryExists(string directory);
     }
 }
