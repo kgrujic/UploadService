@@ -29,30 +29,14 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         public void Upload()
         {
           
-            /*aTimer = new Timer();
-            aTimer.Enabled = true;
-            
-            if (DateTime.Now > scheduledTime)
-                scheduledTime = scheduledTime.AddDays(1);
-            
-            aTimer.Interval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;*/
-           
-            //aTimer.Start();
-           /// aTimer.Elapsed += OnTimedEvent;
-           /// 
             List<Timer> timerMatrix = new List<Timer>();
 
             foreach (var item in _foldersToUpload)
-            {
+            { 
                 DateTime dt = item.Time.ToUniversalTime();
                 
                var scheduledTime = DateTime.Today.AddDays(0).AddHours(dt.Hour).AddMinutes(dt.Minute);
                
-                /*var timer = new Timer() {
-                    Enabled = true,
-                    Interval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000,
-                    AutoReset = true
-                };*/
                 
                 var timer = new Timer();
                 timer.Enabled = true;
@@ -79,12 +63,15 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
             if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;
-            timer.Interval = tillNextInterval;
+                timer.Interval = tillNextInterval;
             
             
                 var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(rm => rm.RemoteFolder).FirstOrDefault();
                 var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.FileMask).FirstOrDefault();
-                // TODO Add other parameters
+                var archiveFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.ArchiveFolder).FirstOrDefault();
+                var cleanUpDays = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.CleanUpPeriodDays).FirstOrDefault();
+                _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+                
                 Console.WriteLine(localFolderPath);
                 foreach (string filePath in Directory.EnumerateFiles(localFolderPath,"*"+fileMask,SearchOption.AllDirectories))
                 {
@@ -92,17 +79,21 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                     string[] arraytmp  = filePath.Split('/');
                     var fileName = arraytmp[arraytmp.Length - 1];
                   
-                    
+                    var remoteFilePath = $"{"home/katarina/" + remoteFolder + "/"}{fileName}";
+                    var localFilePath = $"{localFolderPath + "/"}{fileName}";
                     //TODO Ask async
                     if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
                     {
-                        _client.delete($"{"home/katarina/" + remoteFolder + "/"}{fileName}");
-                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}",
-                            $"{localFolderPath + "/"}{fileName}");
+                        _client.delete(remoteFilePath);
+                        _client.UploadFile(remoteFilePath,localFilePath);
+                        _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
+                        _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
                     }
                     else 
                     {
-                        _client.UploadFile($"{"home/katarina/" + remoteFolder + "/"}{fileName}", $"{localFolderPath + "/"}{fileName}");
+                        _client.UploadFile(remoteFilePath,localFilePath);
+                        _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
+                        _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
                     }
                         
                 }
