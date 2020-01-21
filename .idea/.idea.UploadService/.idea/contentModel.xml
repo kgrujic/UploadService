@@ -16,6 +16,7 @@
           <e p="UploadStrategies" t="Include">
             <e p="IUploadStrategy.cs" t="Include" />
             <e p="Implementations" t="Include">
+              <e p="OnChangeStrategy.cs" t="Include" />
               <e p="PeriodicalStrategy.cs" t="Include" />
               <e p="TimeSpecificStrategy.cs" t="Include" />
             </e>

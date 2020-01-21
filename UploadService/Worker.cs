@@ -30,6 +30,7 @@ namespace UploadService
         
         private IUploadStrategy _PeriodicalStrategy;
         private IUploadStrategy _TimeStrategy;
+        private IUploadStrategy _OnChangeStrategy;
 
 
         public Worker(ILogger<Worker> logger,IOptions<AppSettings> settings)
@@ -45,6 +46,7 @@ namespace UploadService
            
            _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUploads, client, IoHelper);
            _TimeStrategy = new TimeSpecificStrategy(TimeSpecificUploads, client, IoHelper);
+           _OnChangeStrategy = new OnChangeStrategy();
            
             _logger = logger;
         }
@@ -54,6 +56,7 @@ namespace UploadService
     
              //_PeriodicalStrategy.Upload();
              //_TimeStrategy.Upload();
+             _OnChangeStrategy.Upload();
              
         }
     }
