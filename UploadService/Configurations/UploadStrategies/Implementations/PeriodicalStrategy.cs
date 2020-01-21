@@ -21,13 +21,13 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
-        private IOHelper _ioHelper;
+        private IIOHelper _ioHelper;
 
-        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client)
+        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client, IIOHelper ioHelper)
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _client = client;
-            _ioHelper = new IOHelper();
+            _ioHelper = ioHelper;
 
         }
         
@@ -36,11 +36,11 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             
             List<Timer> timerMatrix = new List<Timer>();
 
-            foreach (var VARIABLE in _foldersToUpload)
+            foreach (var item in _foldersToUpload)
             {
                 var timer = new System.Timers.Timer() {
                     Enabled = true,
-                    Interval = VARIABLE.Interval,
+                    Interval = item.Interval,
                     AutoReset = true
                 };
                  
@@ -49,7 +49,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 timer.Elapsed += (sender, e) =>
                 {
 
-                    var path = VARIABLE.LocalFolderPath;
+                    var path = item.LocalFolderPath;
                     OnTimedEvent(path);
                     
                 };

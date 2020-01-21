@@ -13,6 +13,7 @@ using UploadService.Configurations.UploadStrategies.Implementations;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Utilities;
+using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService
 {
@@ -20,28 +21,35 @@ namespace UploadService
     {
         private readonly ILogger<Worker> _logger;
 
-        public IEnumerable<IUploadTypeConfiguration> PeriodicalUpload;
+        public IEnumerable<IUploadTypeConfiguration> PeriodicalUploads;
+        public IEnumerable<IUploadTypeConfiguration> TimeSpecificUploads;
         public IServerConfiguration ftpServerConfiguration;
+        public IServerClient client;
+        public IIOHelper IoHelper;
       
         
        // private static List<IUploadTypeConfiguration> timeSpec = new List<IUploadTypeConfiguration>();
         
         private IUploadStrategy _PeriodicalStrategy;
-       // private IUploadStrategy _TimeStrategy;
+        private IUploadStrategy _TimeStrategy;
 
 
         public Worker(ILogger<Worker> logger,IOptions<AppSettings> settings)
         {
             
-            //timeSpec.Add(new TimeSpecificUpload {LocalFolderPath = "/home/katarina/Desktop/testfolder2", RemoteFolder = "ftptestfolder", FileMask = ".txt", Time = new TimeSpan(10,15,0)});
+            //timeSpec.Add(new TimeSpecificUpload {LocalFolderPath = "/home/katarina/Desktop/testfolder2", RemoteFolder = "ftptestfolder", FileMask = ".txt"});
 
-           PeriodicalUpload = settings.Value.PeriodicalUpload;
+           PeriodicalUploads = settings.Value.PeriodicalUploads;
+           TimeSpecificUploads = settings.Value.TimeSpecificUploads;
+           
            ftpServerConfiguration = settings.Value.ftpServerConfiguration;
-           IServerClient client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
+           client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
            
-
+           IoHelper = new IOHelper();
            
-             _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUpload,client);
+           _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUploads,client,IoHelper);
+           _TimeStrategy = new TimeSpecificStrategy(TimeSpecificUploads,client, IoHelper);
+             
             // _TimeStrategy = new TimeSpecificStrategy(timeSpec,client);
             _logger = logger;
         }
@@ -53,7 +61,8 @@ namespace UploadService
                 Console.WriteLine(VARIABLE.Interval);
                 
             }*/
-             _PeriodicalStrategy.Upload();
+             //_PeriodicalStrategy.Upload();
+             _TimeStrategy.Upload();
             // _TimeStrategy.Upload();
             
             /*while (!stoppingToken.IsCancellationRequested)

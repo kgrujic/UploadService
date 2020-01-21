@@ -7,7 +7,8 @@ namespace UploadService
 {
     public class AppSettings
     {
-        public List<PeriodicalUpload> PeriodicalUpload { get; set; }
+        public List<PeriodicalUpload> PeriodicalUploads { get; set; }
+        public List<TimeSpecificUpload> TimeSpecificUploads { get; set; }
         public FTPServerConfiguration ftpServerConfiguration { get; set; }
     }
 }

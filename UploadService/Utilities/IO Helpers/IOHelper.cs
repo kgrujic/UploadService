@@ -4,28 +4,13 @@ using System.Linq;
 
 namespace UploadService.Utilities.IO_Helpers
 {
-    public class IOHelper
+    // TODO create interface
+    public class IOHelper : IIOHelper
     {
         public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
         {
-            using (FileStream stream = File.OpenRead(sourceFilePath))
-            using (FileStream writeStream = File.OpenWrite(backupFilePath))
-            {
-                BinaryReader reader = new BinaryReader(stream);
-                BinaryWriter writer = new BinaryWriter(writeStream);
-
-                // create a buffer to hold the bytes 
-                byte[] buffer = new Byte[1024];
-                int bytesRead;
-
-                // while the read method returns bytes
-                // keep writing them to the output stream
-                while ((bytesRead =
-                           stream.Read(buffer, 0, 1024)) > 0)
-                {
-                    writeStream.Write(buffer, 0, bytesRead);
-                }
-            }
+            File.Copy(sourceFilePath, backupFilePath, true);
+          
         }
 
         public void CreateDirectoryIfNotExist(string folderPath)
@@ -37,7 +22,7 @@ namespace UploadService.Utilities.IO_Helpers
         {
             Directory.EnumerateFiles(folderPath,"*"+fileMask, SearchOption.AllDirectories)
                 .Select(f => new FileInfo(f))
-                .Where(f => f.LastAccessTime < DateTime.Now.AddDays(-numberOfDays))
+                .Where(f => f.LastWriteTime < DateTime.Now.AddDays(-numberOfDays))
                 .ToList()
                 .ForEach(f => f.Delete());
             
