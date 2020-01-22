@@ -6,7 +6,6 @@ namespace UploadService.Context
 {
     public interface IUploadServiceContext 
     {
-        void OnConfiguring(DbContextOptionsBuilder options);
         DbSet<FileDTO> Files { get; set; }
     }
 }
