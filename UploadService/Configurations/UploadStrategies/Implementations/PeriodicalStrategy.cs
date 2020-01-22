@@ -16,9 +16,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class PeriodicalStrategy : IUploadStrategy
     {
-       
-        private static Timer aTimer;
-
+        
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
         private IIOHelper _ioHelper;

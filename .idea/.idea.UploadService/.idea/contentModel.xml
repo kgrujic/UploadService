@@ -31,11 +31,28 @@
             </e>
           </e>
         </e>
+        <e p="Context" t="Include">
+          <e p="IUploadServiceContext.cs" t="Include" />
+          <e p="UploadServiceContext.cs" t="Include" />
+        </e>
+        <e p="DTOs" t="Include">
+          <e p="FileDTO.cs" t="Include" />
+        </e>
+        <e p="Migrations" t="Include">
+          <e p="20200122072422_InitialCreate.Designer.cs" t="Include" />
+          <e p="20200122072422_InitialCreate.cs" t="Include" />
+          <e p="UploadServiceContextModelSnapshot.cs" t="Include" />
+        </e>
         <e p="Program.cs" t="Include" />
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
         </e>
+        <e p="Repositories" t="Include">
+          <e p="IUploadServiceRepository.cs" t="Include" />
+          <e p="UploadServiceRepository.cs" t="Include" />
+        </e>
         <e p="UploadService.csproj" t="IncludeRecursive" />
+        <e p="UploadServiceDatabase.db" t="Include" />
         <e p="Utilities" t="Include">
           <e p="FTPClient.cs" t="Include" />
           <e p="IO Helpers" t="Include">
