@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using UploadService.DTOs;
+using UploadServiceDatabase.DTOs;
 
-namespace UploadService.Context
+namespace UploadServiceDatabase.Context
 {
     public interface IUploadServiceContext 
     {

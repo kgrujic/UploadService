@@ -1,4 +1,4 @@
-namespace UploadService.Configurations.ServerConfiguration.Implementations
+namespace UploadService.Configurations.ServerConfigurations.Implementations
 {
     public class FTPServerConfiguration : IServerConfiguration
     {

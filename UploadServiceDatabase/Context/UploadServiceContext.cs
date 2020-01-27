@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
-using UploadService.DTOs;
+using UploadServiceDatabase.DTOs;
 
-namespace UploadService.Context
+namespace UploadServiceDatabase.Context
 {
     public class UploadServiceContext : DbContext, IUploadServiceContext
     {
+        
         protected override void  OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite("Data Source=UploadServiceDatabase.db");
+            => options.UseSqlite("Data Source=/home/katarina/RiderProjects/UploadService/UploadServiceDatabase/Database/UploadServiceDatabaseNew.db");
         
         public DbSet<FileDTO> Files { get; set; }
     }

@@ -15,4 +15,8 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="3.0.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\UploadServiceDatabase\UploadServiceDatabase.csproj" />
+    </ItemGroup>
 </Project>

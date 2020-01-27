@@ -1,7 +1,7 @@
 using System;
-using UploadService.DTOs;
+using UploadServiceDatabase.DTOs;
 
-namespace UploadService.Repositories
+namespace UploadServiceDatabase.Repositories
 {
     public interface IUploadServiceRepository : IDisposable
     {

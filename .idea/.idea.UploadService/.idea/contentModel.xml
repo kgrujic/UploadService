@@ -31,30 +31,11 @@
             </e>
           </e>
         </e>
-        <e p="Context" t="Include">
-          <e p="IUploadServiceContext.cs" t="Include" />
-          <e p="UploadServiceContext.cs" t="Include" />
-        </e>
-        <e p="DTOs" t="Include">
-          <e p="FileDTO.cs" t="Include" />
-        </e>
-        <e p="Migrations" t="Include">
-          <e p="20200122072422_InitialCreate.Designer.cs" t="Include" />
-          <e p="20200122072422_InitialCreate.cs" t="Include" />
-          <e p="20200122122211_test.Designer.cs" t="Include" />
-          <e p="20200122122211_test.cs" t="Include" />
-          <e p="UploadServiceContextModelSnapshot.cs" t="Include" />
-        </e>
         <e p="Program.cs" t="Include" />
         <e p="Properties" t="Include">
           <e p="launchSettings.json" t="Include" />
         </e>
-        <e p="Repositories" t="Include">
-          <e p="IUploadServiceRepository.cs" t="Include" />
-          <e p="UploadServiceRepository.cs" t="Include" />
-        </e>
         <e p="UploadService.csproj" t="IncludeRecursive" />
-        <e p="UploadServiceDatabase.db" t="Include" />
         <e p="Utilities" t="Include">
           <e p="Clients" t="Include">
             <e p="FTPClient.cs" t="Include" />
@@ -74,6 +55,7 @@
         <e p="appsettings.Development.json" t="Include" />
         <e p="appsettings.json" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="mono_crash.mem.10446.1.blob" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">
@@ -83,6 +65,37 @@
         </e>
       </e>
       <e p="UploadService.sln" t="IncludeFlat" />
+      <e p="UploadServiceDatabase" t="IncludeRecursive">
+        <e p="Class1.cs" t="Include" />
+        <e p="Context" t="Include">
+          <e p="IUploadServiceContext.cs" t="Include" />
+          <e p="UploadServiceContext.cs" t="Include" />
+        </e>
+        <e p="DTOs" t="Include">
+          <e p="FileDTO.cs" t="Include" />
+        </e>
+        <e p="Database" t="Include">
+          <e p="UploadServiceDatabaseNew.db" t="Include" />
+        </e>
+        <e p="Migrations" t="Include">
+          <e p="20200127095340_InitialMigration.Designer.cs" t="Include" />
+          <e p="20200127095340_InitialMigration.cs" t="Include" />
+          <e p="UploadServiceContextModelSnapshot.cs" t="Include" />
+        </e>
+        <e p="Repositories" t="Include">
+          <e p="IUploadServiceRepository.cs" t="Include" />
+          <e p="UploadServiceRepository.cs" t="Include" />
+        </e>
+        <e p="UploadServiceDatabase.csproj" t="IncludeRecursive" />
+        <e p="bin" t="ExcludeRecursive" />
+        <e p="obj" t="ExcludeRecursive">
+          <e p="Debug" t="Include">
+            <e p="netcoreapp3.0" t="Include">
+              <e p="UploadServiceDatabase.AssemblyInfo.cs" t="Include" />
+            </e>
+          </e>
+        </e>
+      </e>
       <e p="packages" t="ExcludeRecursive" />
     </e>
   </component>

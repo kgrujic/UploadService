@@ -1,9 +1,8 @@
 using System;
-using System.Linq;
-using UploadService.Context;
-using UploadService.DTOs;
+using UploadServiceDatabase.Context;
+using UploadServiceDatabase.DTOs;
 
-namespace UploadService.Repositories
+namespace UploadServiceDatabase.Repositories
 {
     public class UploadServiceRepository : IUploadServiceRepository
     {

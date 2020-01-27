@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadService", "UploadService\UploadService.csproj", "{0334CC80-67BC-4BFC-8A99-1DB096347576}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UploadServiceDatabase", "UploadServiceDatabase\UploadServiceDatabase.csproj", "{324B9DAB-BC3E-4906-8299-94BC19632B9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{0334CC80-67BC-4BFC-8A99-1DB096347576}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0334CC80-67BC-4BFC-8A99-1DB096347576}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0334CC80-67BC-4BFC-8A99-1DB096347576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{324B9DAB-BC3E-4906-8299-94BC19632B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{324B9DAB-BC3E-4906-8299-94BC19632B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{324B9DAB-BC3E-4906-8299-94BC19632B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{324B9DAB-BC3E-4906-8299-94BC19632B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

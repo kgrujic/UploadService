@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using UploadService.Configurations.ServerConfiguration;
-using UploadService.Configurations.ServerConfiguration.Implementations;
+using UploadService.Configurations.ServerConfigurations;
 using UploadService.Configurations.UploadStrategies;
 using UploadService.Configurations.UploadStrategies.Implementations;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
-using UploadService.Context;
 using UploadService.Utilities;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
+using UploadServiceDatabase.DTOs;
+using UploadServiceDatabase.Repositories;
 
 namespace UploadService
 {
@@ -33,6 +33,7 @@ namespace UploadService
         public IServerClient client;
         public IIOHelper IoHelper;
         public IHashHelper hashHelper;
+        public IUploadServiceRepository repository;
         
       
         
@@ -53,6 +54,8 @@ namespace UploadService
            
            IoHelper = new IOHelper();
            hashHelper = new HashHelper();
+           repository = new UploadServiceRepository();
+           
 
 
                //TODO add context to other strategies
@@ -63,12 +66,21 @@ namespace UploadService
             _logger = logger;
         }
         
-        /*public override Task StartAsync(CancellationToken cancellationToken)
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Worker started at: {DateTime.Now}");
+            foreach (var file in OnChangeUploads.Cast<UploadOnChange>())
+            {
+                var hash = hashHelper.GenerateHash(file.LocalFilePath);
+                repository.InsertFile(new FileDTO
+                {
+                    FilePath = file.LocalFilePath, 
+                    HashedContent = hash
+                });
+            }
  
             return base.StartAsync(cancellationToken);
-        }*/
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

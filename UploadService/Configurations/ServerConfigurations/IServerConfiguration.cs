@@ -1,4 +1,4 @@
-namespace UploadService.Configurations.ServerConfiguration
+namespace UploadService.Configurations.ServerConfigurations
 {
     public interface IServerConfiguration
     {

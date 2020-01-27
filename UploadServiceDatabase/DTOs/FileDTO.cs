@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace UploadService.DTOs
+namespace UploadServiceDatabase.DTOs
 {
     public class FileDTO
     {
