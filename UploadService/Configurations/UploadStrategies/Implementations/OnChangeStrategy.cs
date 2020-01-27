@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using INotify.Core;
 using Microsoft.Extensions.Hosting.Systemd;
 using SQLitePCL;
@@ -12,116 +13,134 @@ using UploadService.Context;
 using UploadService.DTOs;
 using UploadService.Repositories;
 using UploadService.Utilities;
+using UploadService.Utilities.Clients;
 using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
+    
     public class OnChangeStrategy: IUploadStrategy
     {
-        private IUploadServiceContext _context;
+        
         private IServerClient _client;
         private IIOHelper _ioHelper;
         private IEnumerable<UploadOnChange> _filesToUpload;
         private IUploadServiceRepository _repository;
+        private List<MyFileSystemWatcher> watchers;
 
-        public OnChangeStrategy(IUploadServiceContext context, IServerClient client, IIOHelper ioHelper, IEnumerable<IUploadTypeConfiguration> filesToUpload)
+        public OnChangeStrategy(IServerClient client, IIOHelper ioHelper, IEnumerable<IUploadTypeConfiguration> filesToUpload)
         {
-            _context = (UploadServiceContext) context;
+          
             _client = client;
             _ioHelper = ioHelper;
             _filesToUpload = filesToUpload.Cast<UploadOnChange>();
-            _repository = new UploadServiceRepository(context);
+            _repository = new UploadServiceRepository();
         }
 
         public void Upload()
         {
 
-            List<FileSystemWatcher> watchers = new List<FileSystemWatcher>();
+           watchers = new List<MyFileSystemWatcher>();
 
             foreach (var file in _filesToUpload)
             {
-                Console.WriteLine(file.LocalFilePath);
-                var localFilePathS = file.LocalFilePath;
-               // var remoteFolder = file.RemoteFolder;
-
-                    var watcher = new FileSystemWatcher()
-                {
-                    Path = Path.GetDirectoryName(localFilePathS),
-                    Filter = Path.GetFileName(localFilePathS),
-                    NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.LastAccess | NotifyFilters.LastWrite| NotifyFilters.FileName | NotifyFilters.DirectoryName,
-                  //  EnableRaisingEvents = true
-                    
-                };
-                    
-               
+                MyFileSystemWatcher watcher = CreateWatcher(file);
                 watchers.Add(watcher);
-                watcher.Renamed += (sender, e) => OnChangeEvent(file.LocalFilePath, file.RemoteFolder,e);
-                
-                watcher.EnableRaisingEvents = true;
-                /*foreach (var watch in watchers)
-                {
-                    watcher.EnableRaisingEvents = true; ;
-                    Console.WriteLine("Watching this folder {0}", watcher.Filter);
-                }*/
-
-
-
-
 
             }
 
-          
+            AddEventHandlers();
+
+            
+        }
+        
+        void AddEventHandlers()
+        {
+            foreach (var w in watchers)
+            {
+                w.Renamed += async (sender, e) =>
+                {
+                    var localFilePath = w.Path + "/" + w.Filter;
+                    var remoteFolder = w.RemoteFolder;
+                    await OnChangeEvent(localFilePath, remoteFolder);
+                };
+              
+            }
         }
 
-        private void OnChangeEvent(string localFilePath, string remoteFolder,FileSystemEventArgs e)
+        public MyFileSystemWatcher CreateWatcher(UploadOnChange file)
         {
+            var watcher = new MyFileSystemWatcher()
+            {
+                Path = Path.GetDirectoryName(file.LocalFilePath),
+                Filter = Path.GetFileName(file.LocalFilePath),
+                NotifyFilter = NotifyFilters.CreationTime | NotifyFilters.LastAccess | NotifyFilters.LastWrite| NotifyFilters.FileName | NotifyFilters.DirectoryName,
+                RemoteFolder = file.RemoteFolder,
+                EnableRaisingEvents = true
+                    
+            };
+
+            return watcher;
             
+        }
+
+      
+
+        private async Task OnChangeEvent(string localFilePath, string remoteFolder)
+        {
+                    Console.WriteLine("I am here");
                     var localHash = GenerateHash(localFilePath);
 
-                    bool ex = _repository.FileExistInDatabase(localFilePath);
-                    Console.WriteLine(ex);
+                   // bool ex = _repository.FileExistInDatabase(localFilePath);
+                    //Console.WriteLine(ex);
+                    
+                   // Console.WriteLine(localHash);
 
-                    if (_repository.FileExistInDatabase(localFilePath))
-                    {
-                        
+                    
+                   
                         var hashFromDb = _repository.GetFileByPath(localFilePath).HashedContent;
+                        Console.WriteLine(hashFromDb);
+                        
+                        
+                        //TODO bug
                         if (!HashMatching(localHash,hashFromDb))
                         {
                             Console.WriteLine("change happend");
-                            var remoteFilePath = $"{"home/katarina/" + remoteFolder + "/"}{Path.GetFileName(localFilePath)}";
-                            if (_client.checkIfFileExists(remoteFilePath))
-                            {
-                                _client.delete(remoteFilePath);
-                                _client.UploadFile(remoteFilePath,localFilePath);
-                                _repository.UpdateFile(new FileDTO()
-                                {
-                                    FilePath = localFilePath, HashedContent = localHash
-                                });
-                               
-                            }
-                            _client.UploadFile(remoteFilePath,localFilePath);
-                            _repository.UpdateFile(new FileDTO()
-                            {
-                                FilePath = localFilePath, HashedContent = localHash
-                            });
-                            
+
+                           await UploadFile(localFilePath, remoteFolder, localHash);
                         }
-                        Console.WriteLine("change did not happen");
-                    }
-                    else
-                    {
-                        _repository.InsertFile(new FileDTO()
+                        else
                         {
-                            FilePath = localFilePath, HashedContent = localHash
-                        });
-                    
-                        Console.WriteLine("file added to database");
-                    }
-                    
+                            Console.WriteLine("change did not happen");
+                        }
+
+
+
         }
 
-        
-        private byte[] GenerateHash(string path)
+        private async Task UploadFile(string localFilePath, string remoteFolder, byte[] localHash)
+        {
+            var remoteFilePath = $"{"home/katarina/" + remoteFolder + "/"}{Path.GetFileName(localFilePath)}";
+            if (_client.checkIfFileExists(remoteFilePath))
+            {
+             
+                _client.UploadFile(remoteFilePath, localFilePath,true);
+                _repository.UpdateFile(new FileDTO()
+                {
+                    FilePath = localFilePath, HashedContent = localHash
+                });
+            }
+            else
+            {
+                _client.UploadFile(remoteFilePath, localFilePath,false);
+                _repository.UpdateFile(new FileDTO()
+                {
+                    FilePath = localFilePath, HashedContent = localHash
+                });
+            }
+        }
+
+         byte[] GenerateHash(string path)
         {
             byte[] tmpHash;
             using (HashAlgorithm hashAlg = HashAlgorithm.Create("MD5"))
@@ -137,7 +156,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             return tmpHash;
         }
         
-        private bool HashMatching(byte[] hashFirst, byte[] hashSecond)
+         bool HashMatching(byte[] hashFirst, byte[] hashSecond)
         {
             if (BitConverter.ToString(hashFirst) == BitConverter.ToString(hashSecond))
             {
@@ -146,10 +165,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             
             return false;
             
-
         }
-
-        
-      
     }
 }

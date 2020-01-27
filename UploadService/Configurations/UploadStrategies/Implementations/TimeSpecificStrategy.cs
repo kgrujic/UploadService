@@ -6,6 +6,7 @@ using System.Timers;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Utilities;
+using UploadService.Utilities.Clients;
 using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
@@ -84,14 +85,14 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                     //TODO Ask async
                     if (_client.checkIfFileExists($"{"home/katarina/" + remoteFolder + "/"}{fileName}"))
                     {
-                        _client.delete(remoteFilePath);
-                        _client.UploadFile(remoteFilePath,localFilePath);
+                    
+                        _client.UploadFile(remoteFilePath,localFilePath,true);
                         _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
                         _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
                     }
                     else 
                     {
-                        _client.UploadFile(remoteFilePath,localFilePath);
+                        _client.UploadFile(remoteFilePath,localFilePath,false);
                         _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
                         _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
                     }

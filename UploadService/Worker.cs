@@ -14,6 +14,7 @@ using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Context;
 using UploadService.Utilities;
+using UploadService.Utilities.Clients;
 using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService
@@ -30,7 +31,7 @@ namespace UploadService
         public IServerConfiguration ftpServerConfiguration;
         public IServerClient client;
         public IIOHelper IoHelper;
-        public IUploadServiceContext context;
+        
       
         
         private IUploadStrategy _PeriodicalStrategy;
@@ -49,15 +50,22 @@ namespace UploadService
            client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
            
            IoHelper = new IOHelper();
-           context = new UploadServiceContext();
+       
            
            //TODO add context to other strategies
            _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUploads, client, IoHelper);
            _TimeStrategy = new TimeSpecificStrategy(TimeSpecificUploads, client, IoHelper);
-           _OnChangeStrategy = new OnChangeStrategy(context,client,IoHelper,OnChangeUploads);
+           _OnChangeStrategy = new OnChangeStrategy(client,IoHelper,OnChangeUploads);
            
             _logger = logger;
         }
+        
+        /*public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Worker started at: {DateTime.Now}");
+ 
+            return base.StartAsync(cancellationToken);
+        }*/
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

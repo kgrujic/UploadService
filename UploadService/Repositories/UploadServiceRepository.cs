@@ -7,59 +7,85 @@ namespace UploadService.Repositories
 {
     public class UploadServiceRepository : IUploadServiceRepository
     {
-        private UploadServiceContext context;
-
-        public UploadServiceRepository(IUploadServiceContext context)
+       
+        public UploadServiceRepository()
         {
-            this.context = (UploadServiceContext) context;
+           
         }
 
         public FileDTO GetFileByPath(string path)
         {
-            return context.Files.Find(path);
+            using (var context = new UploadServiceContext())
+            {
+                return context.Files.Find(path);
+            }
+            
         } 
         
         public bool FileExistInDatabase(string path)
         {
-            //Console.WriteLine(path);
-            if (context.Files.Count(f => f.FilePath == path) > 0)
+            using (var context = new UploadServiceContext())
             {
-                Console.WriteLine("found");
-                return true;
+                Console.WriteLine(path);
+                return false;
+            
+                /*var b = context.Files.Any(f => f.FilePath == path);
+                return b;*/
+
+                /*Console.WriteLine(path);
+                /*if (context.Files.Count(f => f.FilePath == path) > 0)
+                {
+                    Console.WriteLine("found");
+                    return true;
+                }#1#
+
+                return false;*/
+                //return false;
             }
-           
-            return false;
 
         }
 
         public void InsertFile(FileDTO file)
         {
-            context.Files.Add(file);
-            Save();
+            using (var context = new UploadServiceContext())
+            {
+                context.Files.Add(file);
+                context.SaveChanges();
+            }
         }
 
         public void DeleteFile(string path)
         {
-            FileDTO file = context.Files.Find(path);
-            context.Files.Remove(file);
-            Save();
+            using (var context = new UploadServiceContext())
+            {
+                FileDTO file = context.Files.Find(path);
+                context.Files.Remove(file);
+                context.SaveChanges();
+            }
         }
 
         public void UpdateFile(FileDTO file)
         {
-            context.Files.Update(file);
-            Save();
+            using (var context = new UploadServiceContext())
+            {
+                context.Files.Update(file);
+                context.SaveChanges();
+            }
         }
         
         public void Save()        
-        {            
-            context.SaveChanges();        
+        {
+            using (var context = new UploadServiceContext())
+            {
+                context.SaveChanges();      
+            }      
+           
         }        
     
         private bool disposed = false;        
     
         protected virtual void Dispose(bool disposing)        
-        {            
+        {           using (var context = new UploadServiceContext()){       
             if (!this.disposed)            
             {                
                 if (disposing)                
@@ -67,7 +93,8 @@ namespace UploadService.Repositories
                     context.Dispose();                
                 }
             }            
-            this.disposed = true;        
+            this.disposed = true;   
+            }
         }        
     
         public void Dispose()        

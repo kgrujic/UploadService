@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 
-namespace UploadService.Utilities
+namespace UploadService.Utilities.Clients
 {
     public class FTPClient : IServerClient
     {
@@ -26,10 +26,14 @@ namespace UploadService.Utilities
         
         /* Upload File */
 
-        public void UploadFile(string remoteFile, string localFFile)
+        public void UploadFile(string remoteFile, string localFFile,bool overwrite)
         {
             try
             {
+                if (overwrite)
+                {
+                    delete(remoteFile);
+                }
                 /* Create an FTP Request*/
                 ftpRequest = (FtpWebRequest) FtpWebRequest.Create(host + "/"+ remoteFile);
                 
@@ -53,7 +57,9 @@ namespace UploadService.Utilities
                 /* Buffer for the Downloaded Data */
                 byte[] byteBuffer = new byte[bufferSize];
                 int bytesSent = localFileStream.Read(byteBuffer, 0, bufferSize);
-                
+
+              
+
                 /* Upload the File by Sending the Buffered Data Until the Transfer is Complete */
                 try
                 {
