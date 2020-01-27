@@ -15,6 +15,7 @@ using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Context;
 using UploadService.Utilities;
 using UploadService.Utilities.Clients;
+using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService
@@ -31,6 +32,7 @@ namespace UploadService
         public IServerConfiguration ftpServerConfiguration;
         public IServerClient client;
         public IIOHelper IoHelper;
+        public IHashHelper hashHelper;
         
       
         
@@ -50,12 +52,13 @@ namespace UploadService
            client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
            
            IoHelper = new IOHelper();
-       
-           
-           //TODO add context to other strategies
+           hashHelper = new HashHelper();
+
+
+               //TODO add context to other strategies
            _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUploads, client, IoHelper);
            _TimeStrategy = new TimeSpecificStrategy(TimeSpecificUploads, client, IoHelper);
-           _OnChangeStrategy = new OnChangeStrategy(client,IoHelper,OnChangeUploads);
+           _OnChangeStrategy = new OnChangeStrategy(client,IoHelper,OnChangeUploads, hashHelper);
            
             _logger = logger;
         }

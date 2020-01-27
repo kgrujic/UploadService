@@ -14,6 +14,7 @@ using UploadService.DTOs;
 using UploadService.Repositories;
 using UploadService.Utilities;
 using UploadService.Utilities.Clients;
+using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
@@ -24,15 +25,17 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         
         private IServerClient _client;
         private IIOHelper _ioHelper;
+        private IHashHelper _hashHelper;
         private IEnumerable<UploadOnChange> _filesToUpload;
         private IUploadServiceRepository _repository;
         private List<MyFileSystemWatcher> watchers;
 
-        public OnChangeStrategy(IServerClient client, IIOHelper ioHelper, IEnumerable<IUploadTypeConfiguration> filesToUpload)
+        public OnChangeStrategy(IServerClient client, IIOHelper ioHelper, IEnumerable<IUploadTypeConfiguration> filesToUpload, IHashHelper hashHelper)
         {
           
             _client = client;
             _ioHelper = ioHelper;
+            _hashHelper = hashHelper;
             _filesToUpload = filesToUpload.Cast<UploadOnChange>();
             _repository = new UploadServiceRepository();
         }
@@ -89,7 +92,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private async Task OnChangeEvent(string localFilePath, string remoteFolder)
         {
                     Console.WriteLine("I am here");
-                    var localHash = GenerateHash(localFilePath);
+                    var localHash = _hashHelper.GenerateHash(localFilePath);
 
                    // bool ex = _repository.FileExistInDatabase(localFilePath);
                     //Console.WriteLine(ex);
@@ -103,7 +106,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                         
                         
                         //TODO bug
-                        if (!HashMatching(localHash,hashFromDb))
+                        if (!_hashHelper.HashMatching(localHash,hashFromDb))
                         {
                             Console.WriteLine("change happend");
 
@@ -140,31 +143,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             }
         }
 
-         byte[] GenerateHash(string path)
-        {
-            byte[] tmpHash;
-            using (HashAlgorithm hashAlg = HashAlgorithm.Create("MD5"))
-            {
-                using (FileStream fsA = new FileStream(path, FileMode.Open))
-                {
-                    // Calculate the hash for the files.
-                    tmpHash = hashAlg.ComputeHash(fsA);
-                 
-                }
-            }
-
-            return tmpHash;
-        }
-        
-         bool HashMatching(byte[] hashFirst, byte[] hashSecond)
-        {
-            if (BitConverter.ToString(hashFirst) == BitConverter.ToString(hashSecond))
-            {
-                return true;
-            }
-            
-            return false;
-            
-        }
+      
     }
 }

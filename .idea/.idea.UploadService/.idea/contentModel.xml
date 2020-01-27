@@ -61,6 +61,7 @@
             <e p="IServerClient.cs" t="Include" />
           </e>
           <e p="HashHelpers" t="Include">
+            <e p="HashHelper.cs" t="Include" />
             <e p="IHashHelper.cs" t="Include" />
           </e>
           <e p="IO Helpers" t="Include">
