@@ -24,13 +24,14 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private List<MyFileSystemWatcher> watchers;
 
         public OnChangeStrategy(IServerClient client, IIOHelper ioHelper,
-            IEnumerable<IUploadTypeConfiguration> filesToUpload, IHashHelper hashHelper)
+            IEnumerable<IUploadTypeConfiguration> filesToUpload, IHashHelper hashHelper,
+            IUploadServiceRepository repository)
         {
             _client = client;
             _ioHelper = ioHelper;
             _hashHelper = hashHelper;
             _filesToUpload = filesToUpload.Cast<UploadOnChange>();
-            _repository = new UploadServiceRepository();
+            _repository = repository;
         }
 
         public void Upload()
@@ -79,43 +80,18 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             Console.WriteLine("I am here");
             var localHash = _hashHelper.GenerateHash(localFilePath);
-
-
             var hashFromDb = _repository.GetFileByPath(localFilePath).HashedContent;
-            Console.WriteLine(hashFromDb);
-
 
             //TODO bug
             if (!_hashHelper.HashMatching(localHash, hashFromDb))
             {
                 Console.WriteLine("change happend");
 
-                await UploadFile(localFilePath, remoteFolder, localHash);
+                await _hashHelper.UploadFile(localFilePath, remoteFolder, localHash);
             }
             else
             {
                 Console.WriteLine("change did not happen");
-            }
-        }
-
-        private async Task UploadFile(string localFilePath, string remoteFolder, byte[] localHash)
-        {
-            var remoteFilePath = $"{"home/katarina/" + remoteFolder + "/"}{Path.GetFileName(localFilePath)}";
-            if (_client.checkIfFileExists(remoteFilePath))
-            {
-                _client.UploadFile(remoteFilePath, localFilePath, true);
-                _repository.UpdateFile(new FileDTO()
-                {
-                    FilePath = localFilePath, HashedContent = localHash
-                });
-            }
-            else
-            {
-                _client.UploadFile(remoteFilePath, localFilePath, false);
-                _repository.UpdateFile(new FileDTO()
-                {
-                    FilePath = localFilePath, HashedContent = localHash
-                });
             }
         }
     }

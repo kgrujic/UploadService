@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 using UploadServiceDatabase.Context;
 using UploadServiceDatabase.DTOs;
 
@@ -25,21 +27,9 @@ namespace UploadServiceDatabase.Repositories
         {
             using (var context = new UploadServiceContext())
             {
-                Console.WriteLine(path);
-                return false;
-            
-                /*var b = context.Files.Any(f => f.FilePath == path);
-                return b;*/
-
-                /*Console.WriteLine(path);
-                /*if (context.Files.Count(f => f.FilePath == path) > 0)
-                {
-                    Console.WriteLine("found");
-                    return true;
-                }#1#
-
-                return false;*/
-                //return false;
+                var b = context.Files.Any(f => f.FilePath == path);
+                return b;
+                
             }
 
         }

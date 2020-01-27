@@ -9,98 +9,88 @@ using System.Threading.Tasks;
 using System.Timers;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
+using UploadService.DTOs;
 using UploadService.Utilities;
 using UploadService.Utilities.Clients;
+using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
+using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class PeriodicalStrategy : IUploadStrategy
     {
-        
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
         private IServerClient _client;
         private IIOHelper _ioHelper;
+        private IHashHelper _hashHelper;
+        private IUploadServiceRepository _repository;
 
-        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client, IIOHelper ioHelper)
+
+        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client,
+            IIOHelper ioHelper, IHashHelper hashHelper, IUploadServiceRepository repository
+        )
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _client = client;
             _ioHelper = ioHelper;
-
+            _hashHelper = hashHelper;
+            _repository = repository;
         }
-        
+
         public void Upload()
         {
-            
             List<Timer> timerMatrix = new List<Timer>();
 
             foreach (var item in _foldersToUpload)
             {
-                var timer = new System.Timers.Timer() {
+                var timer = new System.Timers.Timer()
+                {
                     Enabled = true,
                     Interval = item.Interval,
                     AutoReset = true
                 };
-                 
+
                 timerMatrix.Add(timer);
 
-                timer.Elapsed += (sender, e) =>
-                {
-
-                    var path = item.LocalFolderPath;
-                    OnTimedEvent(path);
-                    
-                };
+                timer.Elapsed += (sender, e) => { OnTimedEvent(item); };
             }
-            
         }
-        
-        
-        private void OnTimedEvent(string localFolderPath)
+
+
+        private void OnTimedEvent(PeriodicalUpload item)
         {
-                var remoteFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(rm => rm.RemoteFolder).FirstOrDefault();
-                var fileMask = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.FileMask).FirstOrDefault();
-                var archiveFolder = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.ArchiveFolder).FirstOrDefault();
-                var cleanUpDays = _foldersToUpload.Where(rf => rf.LocalFolderPath == localFolderPath).Select(r => r.CleanUpPeriodDays).FirstOrDefault();
-                _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+            var remoteFolder = item.RemoteFolder;
+            var fileMask = item.FileMask;
+            var archiveFolder = item.ArchiveFolder;
+            var cleanUpDays = item.CleanUpPeriodDays;
+            var localFolderPath = item.LocalFolderPath;
+
+            _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, "*" + fileMask,
+                SearchOption.AllDirectories))
+            {
                 
-                foreach (string filePath in Directory.EnumerateFiles(localFolderPath,"*"+ fileMask,SearchOption.AllDirectories))
+                var localHash = _hashHelper.GenerateHash(filePath);
+                var hashFromDb = _repository.GetFileByPath(filePath).HashedContent;
+
+                //TODO bug
+                if (!_hashHelper.HashMatching(localHash, hashFromDb))
                 {
-                   
-                    string[] arraytmp  = filePath.Split('/');
-                    var fileName = arraytmp[arraytmp.Length - 1];
-                    
-                    var remoteFilePath = $"{"home/katarina/" + remoteFolder + "/"}{fileName}";
-                    var localFilePath = $"{localFolderPath + "/"}{fileName}";
-                   
-                    
-                    //TODO Ask async
-                    if (_client.checkIfFileExists(remoteFilePath))
+                    Console.WriteLine("change happend");
+
+                    _hashHelper.UploadFileWithBackupHandling(new UploadFileBackupDTO
                     {
-                        
-                        _client.UploadFile(remoteFilePath, localFilePath,true);
-                        _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
-                        _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
-                    }
-                    else 
-                    {
-                        _client.UploadFile(remoteFilePath, localFilePath,false);
-                        _ioHelper.CleanOutdatedFiles(archiveFolder, fileMask, cleanUpDays);
-                        _ioHelper.SaveFileToArchiveFolder(localFilePath, $"{archiveFolder + "/"}{fileName}");
-                    }
-                        
+                        archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
+                        fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
+                    }, localHash, _ioHelper);
                 }
-                
+                else
+                {
+                    Console.WriteLine("change did not happen");
+                }
+            }
         }
-
-        
-
-       
-
-       
-        
     }
 }
-
-
