@@ -11,6 +11,8 @@ namespace UploadService
         public List<TimeSpecificUpload> TimeSpecificUploads { get; set; }
         
         public List<UploadOnChange> OnChangeUploads { get; set; }
+        
+        public List<UploadOnCreate> OnCreateUploads { get; set; }
         public FTPServerConfiguration ftpServerConfiguration { get; set; }
     }
 }

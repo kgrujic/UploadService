@@ -17,6 +17,7 @@
             <e p="IUploadStrategy.cs" t="Include" />
             <e p="Implementations" t="Include">
               <e p="OnChangeStrategy.cs" t="Include" />
+              <e p="OnCreateStrategy.cs" t="Include" />
               <e p="PeriodicalStrategy.cs" t="Include" />
               <e p="TimeSpecificStrategy.cs" t="Include" />
             </e>
@@ -58,6 +59,9 @@
         <e p="appsettings.Development.json" t="Include" />
         <e p="appsettings.json" t="Include" />
         <e p="bin" t="ExcludeRecursive" />
+        <e p="mono_crash.mem.16797.1.blob" t="Include" />
+        <e p="mono_crash.mem.21112.1.blob" t="Include" />
+        <e p="mono_crash.mem.24411.1.blob" t="Include" />
         <e p="obj" t="ExcludeRecursive">
           <e p="Debug" t="Include">
             <e p="netcoreapp3.0" t="Include">

@@ -22,10 +22,12 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private IServerClient _client;
         private IIOHelper _ioHelper;
         private IHashHelper _hashHelper;
+
         private IUploadServiceRepository _repository;
         //private DateTime scheduledTime;
 
-        public TimeSpecificStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client, IIOHelper ioHelper,IHashHelper hashHelper, IUploadServiceRepository repository)
+        public TimeSpecificStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client,
+            IIOHelper ioHelper, IHashHelper hashHelper, IUploadServiceRepository repository)
         {
             _foldersToUpload = foldersToUpload.Cast<TimeSpecificUpload>();
             _client = client;
@@ -36,33 +38,30 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
         public void Upload()
         {
-          
             List<Timer> timerMatrix = new List<Timer>();
 
             foreach (var item in _foldersToUpload)
-            { 
+            {
                 DateTime dt = item.Time.ToUniversalTime();
-                
-               var scheduledTime = DateTime.Today.AddDays(0).AddHours(dt.Hour).AddMinutes(dt.Minute);
-               
-                
+
+                var scheduledTime = DateTime.Today.AddDays(0).AddHours(dt.Hour).AddMinutes(dt.Minute);
+
+
                 var timer = new Timer();
                 timer.Enabled = true;
-                
+
                 if (DateTime.Now > scheduledTime)
                     scheduledTime = scheduledTime.AddDays(1);
-                
+
                 timer.Interval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
                 timer.AutoReset = true;
-                 
+
                 timerMatrix.Add(timer);
 
                 timer.Elapsed += (sender, e) =>
                 {
-
                     var path = item.LocalFolderPath;
                     OnTimedEvent(item, scheduledTime, timer);
-                    
                 };
             }
         }
@@ -71,46 +70,40 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
             if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;
-                timer.Interval = tillNextInterval;
-            
-            
-                var remoteFolder = item.RemoteFolder;
-                var fileMask = item.FileMask;
-                var archiveFolder = item.ArchiveFolder;
-                var cleanUpDays = item.CleanUpPeriodDays;
-                var localFolderPath = item.LocalFolderPath;
-                
-                _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
-                
-                Console.WriteLine(localFolderPath);
-                foreach (string filePath in Directory.EnumerateFiles(localFolderPath,"*"+fileMask,SearchOption.AllDirectories))
+            timer.Interval = tillNextInterval;
+
+
+            var remoteFolder = item.RemoteFolder;
+            var fileMask = item.FileMask;
+            var archiveFolder = item.ArchiveFolder;
+            var cleanUpDays = item.CleanUpPeriodDays;
+            var localFolderPath = item.LocalFolderPath;
+
+            _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+
+            Console.WriteLine(localFolderPath);
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, "*" + fileMask,
+                SearchOption.AllDirectories))
+            {
+                var localHash = _hashHelper.GenerateHash(filePath);
+                var hashFromDb = _repository.GetFileByPath(filePath).HashedContent;
+
+                //TODO bug
+                if (!_hashHelper.HashMatching(localHash, hashFromDb))
                 {
-                    
-                    
-                    var localHash = _hashHelper.GenerateHash(filePath);
-                    var hashFromDb = _repository.GetFileByPath(filePath).HashedContent;
-            
-                    //TODO bug
-                    if (!_hashHelper.HashMatching(localHash, hashFromDb))
-                    {
-                        Console.WriteLine("change happend");
+                    Console.WriteLine("change happend");
 
-                        _hashHelper.UploadFileWithBackupHandling(new UploadFileBackupDTO
-                        {
-                            archiveFolder = archiveFolder, cleanUpDays = cleanUpDays, 
-                            fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
-                        }, localHash, _ioHelper);
-                    }
-                    else
+                    _hashHelper.UploadFileWithBackupHandling(new UploadFileBackupDTO
                     {
-                        Console.WriteLine("change did not happen");
-                    }
-                        
+                        archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
+                        fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
+                    }, localHash, _ioHelper);
                 }
-                
-            
-
-            
+                else
+                {
+                    Console.WriteLine("change did not happen");
+                }
+            }
         }
     }
 }

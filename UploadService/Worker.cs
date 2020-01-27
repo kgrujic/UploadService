@@ -28,6 +28,7 @@ namespace UploadService
         public IEnumerable<IUploadTypeConfiguration> PeriodicalUploads;
         public IEnumerable<IUploadTypeConfiguration> TimeSpecificUploads;
         public IEnumerable<IUploadTypeConfiguration> OnChangeUploads;
+        public IEnumerable<IUploadTypeConfiguration> OnCreateUploads;
         
         
         public IServerConfiguration ftpServerConfiguration;
@@ -41,6 +42,7 @@ namespace UploadService
         private IUploadStrategy _PeriodicalStrategy;
         private IUploadStrategy _TimeStrategy;
         private IUploadStrategy _OnChangeStrategy;
+        private IUploadStrategy _OnCreateStrategy;
 
 
         public Worker(ILogger<Worker> logger,IOptions<AppSettings> settings)
@@ -49,6 +51,7 @@ namespace UploadService
            PeriodicalUploads = settings.Value.PeriodicalUploads;
            TimeSpecificUploads = settings.Value.TimeSpecificUploads;
            OnChangeUploads = settings.Value.OnChangeUploads;
+           OnCreateUploads = settings.Value.OnCreateUploads;
            
            ftpServerConfiguration = settings.Value.ftpServerConfiguration;
            client = new FTPClient(ftpServerConfiguration.HostAddress,ftpServerConfiguration.Username,ftpServerConfiguration.Password);
@@ -62,7 +65,7 @@ namespace UploadService
            _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUploads, client, IoHelper,hashHelper,repository);
            _TimeStrategy = new TimeSpecificStrategy(TimeSpecificUploads, client, IoHelper, hashHelper, repository);
            _OnChangeStrategy = new OnChangeStrategy(client,IoHelper,OnChangeUploads, hashHelper, repository);
-           
+           _OnCreateStrategy = new OnCreateStrategy(client,IoHelper,OnCreateUploads, hashHelper, repository);
             _logger = logger;
         }
         
@@ -72,7 +75,6 @@ namespace UploadService
             foreach (var file in OnChangeUploads.Cast<UploadOnChange>())
             {
                 var localHash = hashHelper.GenerateHash(file.LocalFilePath);
-                var dbHash = repository.GetFileByPath(file.LocalFilePath).HashedContent;
                 if (!repository.FileExistInDatabase(file.LocalFilePath))
                 {
                     repository.InsertFile(new FileDTO
@@ -81,7 +83,7 @@ namespace UploadService
                         HashedContent = localHash
                     });
                 }
-                else if(!hashHelper.HashMatching(localHash, dbHash))
+                else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(file.LocalFilePath).HashedContent))
                 {
                     hashHelper.UploadFile(file.LocalFilePath, file.RemoteFolder, localHash);
                 }
@@ -93,7 +95,7 @@ namespace UploadService
                 foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, "*" + item.FileMask, SearchOption.AllDirectories))
                 {
                     var localHash = hashHelper.GenerateHash(filePath);
-                    var dbHash = repository.GetFileByPath(filePath).HashedContent;
+                    
                     if (!repository.FileExistInDatabase(filePath))
                     {
                         repository.InsertFile(new FileDTO
@@ -101,7 +103,7 @@ namespace UploadService
                             FilePath = filePath, 
                             HashedContent = localHash
                         });
-                    }else if(!hashHelper.HashMatching(localHash, dbHash))
+                    }else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(filePath).HashedContent))
                     {
                         hashHelper.UploadFile(filePath, item.RemoteFolder, localHash);
                     }
@@ -113,7 +115,6 @@ namespace UploadService
                 foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, "*" + item.FileMask, SearchOption.AllDirectories))
                 {
                     var localHash = hashHelper.GenerateHash(filePath);
-                    var dbHash = repository.GetFileByPath(filePath).HashedContent;
                     if (!repository.FileExistInDatabase(filePath))
                     {
                         repository.InsertFile(new FileDTO
@@ -121,7 +122,7 @@ namespace UploadService
                             FilePath = filePath, 
                             HashedContent = localHash
                         });
-                    }else if(!hashHelper.HashMatching(localHash, dbHash))
+                    }else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(filePath).HashedContent))
                     {
                         hashHelper.UploadFile(filePath, item.RemoteFolder, localHash);
                     }
@@ -135,10 +136,12 @@ namespace UploadService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
     
-             _PeriodicalStrategy.Upload();
+             //_PeriodicalStrategy.Upload();
              //_TimeStrategy.Upload();
              //_OnChangeStrategy.Upload();
+             _OnCreateStrategy.Upload();
              
+
         }
     }
 }
