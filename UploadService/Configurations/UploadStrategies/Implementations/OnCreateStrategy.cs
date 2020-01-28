@@ -9,12 +9,7 @@ using UploadService.DTOs;
 using UploadService.Utilities;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.CleaningOutdatedFiles;
-using UploadService.Utilities.Clients;
-using UploadService.Utilities.HashHelpers;
-using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
-using UploadServiceDatabase.DTOs;
-using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {

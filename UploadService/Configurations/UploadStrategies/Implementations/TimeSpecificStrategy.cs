@@ -6,26 +6,19 @@ using System.Timers;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
-using UploadService.Utilities;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.CleaningOutdatedFiles;
-using UploadService.Utilities.Clients;
-using UploadService.Utilities.HashHelpers;
-using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
-using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class TimeSpecificStrategy : IUploadStrategy
     {
-        //private static System.Timers.Timer aTimer;
 
         private IEnumerable<TimeSpecificUpload> _foldersToUpload;
         private IUpload _upload;
         private IArchive _archive;
         private IClineable _clean;
-        //private DateTime scheduledTime;
 
         public TimeSpecificStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload,IUpload upload, IArchive archive, IClineable clean)
         {
@@ -80,12 +73,9 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
            // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
            
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask,
-                SearchOption.AllDirectories))
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
             {
-
-                //TODO bug
-
+                
                 var dto = new UploadFileBackupDTO
                 {
                     archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,

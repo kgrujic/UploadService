@@ -1,23 +1,13 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Resources;
-using System.Threading.Tasks;
 using System.Timers;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
-using UploadService.Utilities;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.CleaningOutdatedFiles;
-using UploadService.Utilities.Clients;
-using UploadService.Utilities.HashHelpers;
-using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
-using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
@@ -28,7 +18,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private IArchive _archive;
         private IClineable _clean;
 
-        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IUpload upload, IArchive archive, IClineable clean)
+        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IUpload upload,
+            IArchive archive, IClineable clean)
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
             _upload = upload;
@@ -64,22 +55,20 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             var cleanUpDays = item.CleanUpPeriodDays;
             var localFolderPath = item.LocalFolderPath;
 
-           // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+            // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
 
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath,  fileMask,
-                SearchOption.AllDirectories))
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
             {
-
                 var dto = new UploadFileBackupDTO
                 {
                     archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
                     fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
                 };
-                    _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
-                    _clean.CleanOutdatedFilesOnDays(dto.archiveFolder,dto.fileMask, dto.cleanUpDays);
-                    _archive.SaveFileToArchiveFolder(dto.localFilePath,  Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
                 
-               
+                _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
+                _clean.CleanOutdatedFilesOnDays(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
+                _archive.SaveFileToArchiveFolder(dto.localFilePath,
+                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
             }
         }
     }

@@ -7,7 +7,6 @@ namespace UploadService.Utilities.ArchiveFiles
         public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
         {
             File.Copy(sourceFilePath, backupFilePath, true);
-          
         }
     }
 }

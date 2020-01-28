@@ -1,18 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
-using UploadServiceDatabase.DTOs;
-using UploadServiceDatabase.Repositories;
 using UploadService.Utilities;
-using UploadService.Utilities.ArchiveFiles;
-using UploadService.Utilities.CleaningOutdatedFiles;
-using UploadService.Utilities.Clients;
-using UploadService.Utilities.HashHelpers;
-using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
@@ -29,9 +21,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             _filesToUpload = filesToUpload.Cast<UploadOnChange>();
             _upload = upload;
-         
         }
-        
+
 
         public void Upload()
         {
@@ -52,7 +43,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             {
                 w.Renamed += async (sender, e) =>
                 {
-                    var localFilePath = w.Path + "/" + w.Filter;
+                    var localFilePath = Path.Combine(w.Path, w.Filter);
                     var remoteFolder = w.RemoteFolder;
                     await OnChangeEvent(localFilePath, remoteFolder);
                 };
@@ -77,16 +68,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
         private async Task OnChangeEvent(string localFilePath, string remoteFolder)
         {
-            Console.WriteLine("I am here");
-          
-
-            //TODO bug
-            
-                Console.WriteLine("change happend");
-
-                await _upload.UploadFile(localFilePath, remoteFolder);
-                
-          
+            await _upload.UploadFile(localFilePath, remoteFolder);
         }
     }
 }
