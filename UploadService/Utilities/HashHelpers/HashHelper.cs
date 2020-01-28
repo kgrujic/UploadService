@@ -48,7 +48,7 @@ namespace UploadService.Utilities.HashHelpers
         }
 
 
-        public async Task UploadFileOnChange(string localFilePath, string remoteFolder, byte[] localHash)
+        /*public async Task UploadFileOnChange(string localFilePath, string remoteFolder, byte[] localHash)
         {
             var remoteFilePath = Path.Combine("home/katarina/", remoteFolder, Path.GetFileName(localFilePath));
 
@@ -91,9 +91,9 @@ namespace UploadService.Utilities.HashHelpers
                         FilePath = dto.localFilePath, HashedContent = localHash
                     });
 
-                    _ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
+                    /*_ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
                     _ioHelper.SaveFileToArchiveFolder(dto.localFilePath,
-                        Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
+                        Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));#1#
                 }
             }
             else
@@ -105,10 +105,10 @@ namespace UploadService.Utilities.HashHelpers
                     FilePath = dto.localFilePath, HashedContent = localHash
                 });
 
-                _ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
+                /*_ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
                 _ioHelper.SaveFileToArchiveFolder(dto.localFilePath,
-                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
+                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));#1#
             }
-        }
+        }*/
     }
 }

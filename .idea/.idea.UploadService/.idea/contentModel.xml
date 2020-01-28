@@ -41,7 +41,14 @@
         </e>
         <e p="UploadService.csproj" t="IncludeRecursive" />
         <e p="Utilities" t="Include">
-          <e p="CleaningOutdatedFiles" t="Include" />
+          <e p="ArchiveFiles" t="Include">
+            <e p="ArchiveFiles.cs" t="Include" />
+            <e p="IArchive.cs" t="Include" />
+          </e>
+          <e p="CleaningOutdatedFiles" t="Include">
+            <e p="CleanOudatedFiles.cs" t="Include" />
+            <e p="IClineable.cs" t="Include" />
+          </e>
           <e p="Clients" t="Include">
             <e p="FTPClient.cs" t="Include" />
             <e p="IServerClient.cs" t="Include" />
@@ -55,6 +62,10 @@
             <e p="IOHelper.cs" t="Include" />
           </e>
           <e p="MyFileSystemWatcher.cs" t="Include" />
+          <e p="UploadFiles" t="Include">
+            <e p="IUpload.cs" t="Include" />
+            <e p="UploadFiles.cs" t="Include" />
+          </e>
         </e>
         <e p="Worker.cs" t="Include" />
         <e p="appsettings.Development.json" t="Include" />

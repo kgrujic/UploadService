@@ -7,9 +7,12 @@ using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
 using UploadService.Utilities;
+using UploadService.Utilities.ArchiveFiles;
+using UploadService.Utilities.CleaningOutdatedFiles;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
+using UploadService.Utilities.UploadFiles;
 using UploadServiceDatabase.DTOs;
 using UploadServiceDatabase.Repositories;
 
@@ -17,22 +20,20 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class OnCreateStrategy : IUploadStrategy
     {
-        private IServerClient _client;
-        private IIOHelper _ioHelper;
-        private IHashHelper _hashHelper;
+        
         private IEnumerable<UploadOnCreate> _folders;
-        private IUploadServiceRepository _repository;
+        private IUpload _upload;
+        private IArchive _archive;
+        private IClineable _clean;
+
         private List<MyFileSystemWatcher> watchers;
 
-        public OnCreateStrategy(IServerClient client, IIOHelper ioHelper,
-            IEnumerable<IUploadTypeConfiguration> filesToUpload, IHashHelper hashHelper,
-            IUploadServiceRepository repository)
+        public OnCreateStrategy(IEnumerable<IUploadTypeConfiguration> folders, IUpload upload, IArchive archive, IClineable clean)
         {
-            _client = client;
-            _ioHelper = ioHelper;
-            _hashHelper = hashHelper;
-            _folders = filesToUpload.Cast<UploadOnCreate>();
-            _repository = repository;
+            _folders = folders.Cast<UploadOnCreate>();
+            _upload = upload;
+            _archive = archive;
+            _clean = clean;
         }
 
         public void Upload()
@@ -91,17 +92,18 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private async Task OnCreateEvent(UploadFileBackupDTO dto)
         {
             Console.WriteLine("I am here");
-            var localHash = _hashHelper.GenerateHash(dto.localFilePath);
             
-            _repository.InsertFile(new FileDTO
+            /*_repository.InsertFile(new FileDTO
             {
                 FilePath = dto.localFilePath, 
                 HashedContent = localHash
-            });
+            });*/
             
             Console.WriteLine("change happend");
 
-            await _hashHelper.UploadFileWithBackupHandling(dto, _ioHelper);
+            await _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
+            _clean.CleanOutdatedFilesOnDays(dto.archiveFolder,dto.fileMask, dto.cleanUpDays);
+            _archive.SaveFileToArchiveFolder(dto.localFilePath,  Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
         }
     }
 }

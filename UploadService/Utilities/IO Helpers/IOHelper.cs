@@ -7,18 +7,18 @@ namespace UploadService.Utilities.IO_Helpers
     // TODO create interface
     public class IOHelper : IIOHelper
     {
-        public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
+        /*public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
         {
             File.Copy(sourceFilePath, backupFilePath, true);
           
-        }
+        }*/
 
         public void CreateDirectoryIfNotExist(string folderPath)
         {
             // Check if exists and create
             Directory.CreateDirectory(folderPath);
         }
-        public void CleanOutdatedFiles(string folderPath,string fileMask, int numberOfDays)
+        /*public void CleanOutdatedFiles(string folderPath,string fileMask, int numberOfDays)
         {
             Directory.EnumerateFiles(folderPath,"*"+fileMask, SearchOption.AllDirectories)
                 .Select(f => new FileInfo(f))
@@ -26,6 +26,6 @@ namespace UploadService.Utilities.IO_Helpers
                 .ToList()
                 .ForEach(f => f.Delete());
             
-        }
+        }*/
     }
 }

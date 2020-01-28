@@ -11,9 +11,12 @@ using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
 using UploadService.Utilities;
+using UploadService.Utilities.ArchiveFiles;
+using UploadService.Utilities.CleaningOutdatedFiles;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
+using UploadService.Utilities.UploadFiles;
 using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
@@ -21,21 +24,16 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
     public class PeriodicalStrategy : IUploadStrategy
     {
         private IEnumerable<PeriodicalUpload> _foldersToUpload;
-        private IServerClient _client;
-        private IIOHelper _ioHelper;
-        private IHashHelper _hashHelper;
-        private IUploadServiceRepository _repository;
+        private IUpload _upload;
+        private IArchive _archive;
+        private IClineable _clean;
 
-
-        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IServerClient client,
-            IIOHelper ioHelper, IHashHelper hashHelper, IUploadServiceRepository repository
-        )
+        public PeriodicalStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload, IUpload upload, IArchive archive, IClineable clean)
         {
             _foldersToUpload = foldersToUpload.Cast<PeriodicalUpload>();
-            _client = client;
-            _ioHelper = ioHelper;
-            _hashHelper = hashHelper;
-            _repository = repository;
+            _upload = upload;
+            _archive = archive;
+            _clean = clean;
         }
 
         public void Upload()
@@ -66,30 +64,22 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             var cleanUpDays = item.CleanUpPeriodDays;
             var localFolderPath = item.LocalFolderPath;
 
-            _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+           // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
 
             foreach (string filePath in Directory.EnumerateFiles(localFolderPath,  fileMask,
                 SearchOption.AllDirectories))
             {
+
+                var dto = new UploadFileBackupDTO
+                {
+                    archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
+                    fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
+                };
+                    _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
+                    _clean.CleanOutdatedFilesOnDays(dto.archiveFolder,dto.fileMask, dto.cleanUpDays);
+                    _archive.SaveFileToArchiveFolder(dto.localFilePath,  Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
                 
-                var localHash = _hashHelper.GenerateHash(filePath);
-                var hashFromDb = _repository.GetFileByPath(filePath).HashedContent;
-
-                //TODO bug
-                if (!_hashHelper.HashMatching(localHash, hashFromDb))
-                {
-                    Console.WriteLine("change happend");
-
-                    _hashHelper.UploadFileWithBackupHandling(new UploadFileBackupDTO
-                    {
-                        archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
-                        fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
-                    }, _ioHelper);
-                }
-                else
-                {
-                    Console.WriteLine("change did not happen");
-                }
+               
             }
         }
     }

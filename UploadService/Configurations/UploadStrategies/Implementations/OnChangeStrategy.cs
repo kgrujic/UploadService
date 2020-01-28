@@ -8,31 +8,30 @@ using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadServiceDatabase.DTOs;
 using UploadServiceDatabase.Repositories;
 using UploadService.Utilities;
+using UploadService.Utilities.ArchiveFiles;
+using UploadService.Utilities.CleaningOutdatedFiles;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
+using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class OnChangeStrategy : IUploadStrategy
     {
-        private IServerClient _client;
-        private IIOHelper _ioHelper;
-        private IHashHelper _hashHelper;
         private IEnumerable<UploadOnChange> _filesToUpload;
-        private IUploadServiceRepository _repository;
+        private IUpload _upload;
+
+
         private List<MyFileSystemWatcher> watchers;
 
-        public OnChangeStrategy(IServerClient client, IIOHelper ioHelper,
-            IEnumerable<IUploadTypeConfiguration> filesToUpload, IHashHelper hashHelper,
-            IUploadServiceRepository repository)
+        public OnChangeStrategy(IEnumerable<IUploadTypeConfiguration> filesToUpload, IUpload upload)
         {
-            _client = client;
-            _ioHelper = ioHelper;
-            _hashHelper = hashHelper;
             _filesToUpload = filesToUpload.Cast<UploadOnChange>();
-            _repository = repository;
+            _upload = upload;
+         
         }
+        
 
         public void Upload()
         {
@@ -79,20 +78,15 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private async Task OnChangeEvent(string localFilePath, string remoteFolder)
         {
             Console.WriteLine("I am here");
-            var localHash = _hashHelper.GenerateHash(localFilePath);
-            var hashFromDb = _repository.GetFileByPath(localFilePath).HashedContent;
+          
 
             //TODO bug
-            if (!_hashHelper.HashMatching(localHash, hashFromDb))
-            {
+            
                 Console.WriteLine("change happend");
 
-                await _hashHelper.UploadFileOnChange(localFilePath, remoteFolder, localHash);
-            }
-            else
-            {
-                Console.WriteLine("change did not happen");
-            }
+                await _upload.UploadFile(localFilePath, remoteFolder);
+                
+          
         }
     }
 }
