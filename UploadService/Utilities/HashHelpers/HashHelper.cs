@@ -48,15 +48,14 @@ namespace UploadService.Utilities.HashHelpers
         }
 
 
-        public async Task UploadFile(string localFilePath, string remoteFolder, byte[] localHash)
+        public async Task UploadFileOnChange(string localFilePath, string remoteFolder, byte[] localHash)
         {
-            
             var remoteFilePath = Path.Combine("home/katarina/", remoteFolder, Path.GetFileName(localFilePath));
-            
+
             if (_client.checkIfFileExists(remoteFilePath))
             {
                 _client.UploadFile(remoteFilePath, localFilePath, true);
-                
+
                 _repository.UpdateFile(new FileDTO()
                 {
                     FilePath = localFilePath, HashedContent = localHash
@@ -65,7 +64,7 @@ namespace UploadService.Utilities.HashHelpers
             else
             {
                 _client.UploadFile(remoteFilePath, localFilePath, false);
-                
+
                 _repository.UpdateFile(new FileDTO()
                 {
                     FilePath = localFilePath, HashedContent = localHash
@@ -73,36 +72,42 @@ namespace UploadService.Utilities.HashHelpers
             }
         }
 
-        public async Task UploadFileWithBackupHandling(UploadFileBackupDTO dto, byte[] localHash, IIOHelper _ioHelper)
+        public async Task UploadFileWithBackupHandling(UploadFileBackupDTO dto, IIOHelper _ioHelper)
         {
-           
             var remoteFilePath = Path.Combine("home/katarina/", dto.remoteFolder, Path.GetFileName(dto.localFilePath));
+            
+            var localHash = this.GenerateHash(dto.localFilePath);
+           
 
             if (_client.checkIfFileExists(remoteFilePath))
             {
-                _client.UploadFile(remoteFilePath, dto.localFilePath, true);
-                
-                _repository.UpdateFile(new FileDTO()
+                var hashFromDb = _repository.GetFileByPath(dto.localFilePath).HashedContent;
+                if (!HashMatching(localHash, hashFromDb))
                 {
-                    FilePath = dto.localFilePath, HashedContent = localHash
-                });
+                    _client.UploadFile(remoteFilePath, dto.localFilePath, true);
 
-                _ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
-                _ioHelper.SaveFileToArchiveFolder(dto.localFilePath,
-                    $"{dto.archiveFolder + "/"}{Path.GetFileName(dto.localFilePath)}");
+                    _repository.UpdateFile(new FileDTO()
+                    {
+                        FilePath = dto.localFilePath, HashedContent = localHash
+                    });
+
+                    _ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
+                    _ioHelper.SaveFileToArchiveFolder(dto.localFilePath,
+                        Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
+                }
             }
             else
             {
                 _client.UploadFile(remoteFilePath, dto.localFilePath, false);
-                
-                _repository.UpdateFile(new FileDTO()
+
+                _repository.InsertFile(new FileDTO()
                 {
                     FilePath = dto.localFilePath, HashedContent = localHash
                 });
-                
+
                 _ioHelper.CleanOutdatedFiles(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
                 _ioHelper.SaveFileToArchiveFolder(dto.localFilePath,
-                    $"{dto.archiveFolder + "/"}{Path.GetFileName(dto.localFilePath)}");
+                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
             }
         }
     }

@@ -43,46 +43,29 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             {
                 MyFileSystemWatcher watcher = CreateWatcher(folder);
                 watchers.Add(watcher);
-                
-                watcher.Created += (sender, e) =>
-                {
-                    Console.WriteLine("created" + e.ChangeType);
-
-                    /*var localFilePath = w.Path + "/" + e.Name;
-              
-                    await OnChangeEvent(new UploadFileBackupDTO
-                    {
-                        archiveFolder = w.archiveFolder,
-                        cleanUpDays = w.cleanUpDays,
-                        fileMask = w.fileMask,
-                        localFilePath = localFilePath,
-                        remoteFolder = w.RemoteFolder
-                    });*/
-                };
             }
 
-            //AddEventHandlers();
+            AddEventHandlers();
         }
 
         void AddEventHandlers()
         {
             foreach (var w in watchers)
             {
-                Console.WriteLine(w.Path);
-                w.Changed += (sender, e) =>
+                w.Created += async (sender, e) =>
                 {
                     Console.WriteLine("created" + e.ChangeType);
 
-                    /*var localFilePath = w.Path + "/" + e.Name;
+                    var localFilePath = w.Path + "/" + e.Name;
               
-                    await OnChangeEvent(new UploadFileBackupDTO
+                    await OnCreateEvent(new UploadFileBackupDTO
                     {
                         archiveFolder = w.archiveFolder,
                         cleanUpDays = w.cleanUpDays,
                         fileMask = w.fileMask,
                         localFilePath = localFilePath,
                         remoteFolder = w.RemoteFolder
-                    });*/
+                    });
                 };
             }
         }
@@ -105,7 +88,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             return watcher;
         }
 
-        private async Task OnChangeEvent(UploadFileBackupDTO dto)
+        private async Task OnCreateEvent(UploadFileBackupDTO dto)
         {
             Console.WriteLine("I am here");
             var localHash = _hashHelper.GenerateHash(dto.localFilePath);
@@ -118,7 +101,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             
             Console.WriteLine("change happend");
 
-            await _hashHelper.UploadFileWithBackupHandling(dto, localHash, _ioHelper);
+            await _hashHelper.UploadFileWithBackupHandling(dto, _ioHelper);
         }
     }
 }

@@ -9,8 +9,8 @@ namespace UploadService.Utilities.HashHelpers
         byte[] GenerateHash(string path);
         bool HashMatching(byte[] hashFirst, byte[] hashSecond);
 
-        public  Task UploadFile(string localFilePath, string remoteFolder, byte[] localHash);
+        public  Task UploadFileOnChange(string localFilePath, string remoteFolder, byte[] localHash);
 
-        public Task UploadFileWithBackupHandling(UploadFileBackupDTO dto, byte[] localHash, IIOHelper _ioHelper);
+        public Task UploadFileWithBackupHandling(UploadFileBackupDTO dto, IIOHelper _ioHelper);
     }
 }

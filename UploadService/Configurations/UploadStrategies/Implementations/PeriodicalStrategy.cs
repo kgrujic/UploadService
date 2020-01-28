@@ -68,7 +68,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
             _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
 
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, "*" + fileMask,
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath,  fileMask,
                 SearchOption.AllDirectories))
             {
                 
@@ -84,7 +84,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                     {
                         archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
                         fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
-                    }, localHash, _ioHelper);
+                    }, _ioHelper);
                 }
                 else
                 {

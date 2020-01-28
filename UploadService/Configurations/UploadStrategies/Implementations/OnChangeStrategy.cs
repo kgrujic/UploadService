@@ -87,7 +87,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             {
                 Console.WriteLine("change happend");
 
-                await _hashHelper.UploadFile(localFilePath, remoteFolder, localHash);
+                await _hashHelper.UploadFileOnChange(localFilePath, remoteFolder, localHash);
             }
             else
             {

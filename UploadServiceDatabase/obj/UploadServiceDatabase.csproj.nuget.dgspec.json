@@ -17,7 +17,7 @@
           "/usr/share/dotnet/sdk/NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/home/katarina/.nuget/NuGet/NuGet.Config"
+          "/home/katarina/.config/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
@@ -51,7 +51,7 @@
             },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
-              "version": "(, )"
+              "version": "[3.1.1, )"
             }
           },
           "imports": [

@@ -12,6 +12,7 @@ using UploadService.Configurations.UploadStrategies;
 using UploadService.Configurations.UploadStrategies.Implementations;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
+using UploadService.DTOs;
 using UploadService.Utilities;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
@@ -72,6 +73,7 @@ namespace UploadService
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Worker started at: {DateTime.Now}");
+            
             foreach (var file in OnChangeUploads.Cast<UploadOnChange>())
             {
                 var localHash = hashHelper.GenerateHash(file.LocalFilePath);
@@ -85,14 +87,18 @@ namespace UploadService
                 }
                 else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(file.LocalFilePath).HashedContent))
                 {
-                    hashHelper.UploadFile(file.LocalFilePath, file.RemoteFolder, localHash);
+                    hashHelper.UploadFileOnChange(file.LocalFilePath, file.RemoteFolder, localHash);
                 }
               
             }
+            
+            HandleOnStart(PeriodicalUploads);
+            HandleOnStart(TimeSpecificUploads);
+            HandleOnStart(OnCreateUploads);
 
-            foreach (var item in PeriodicalUploads.Cast<PeriodicalUpload>())
+            /*foreach (var item in PeriodicalUploads.Cast<PeriodicalUpload>())
             {
-                foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, "*" + item.FileMask, SearchOption.AllDirectories))
+                foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask, SearchOption.AllDirectories))
                 {
                     var localHash = hashHelper.GenerateHash(filePath);
                     
@@ -103,16 +109,25 @@ namespace UploadService
                             FilePath = filePath, 
                             HashedContent = localHash
                         });
-                    }else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(filePath).HashedContent))
+                    }
+                    else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(filePath).HashedContent))
                     {
-                        hashHelper.UploadFile(filePath, item.RemoteFolder, localHash);
+                        //hashHelper.UploadFileOnChange(filePath, item.RemoteFolder, localHash);
+                        hashHelper.UploadFileWithBackupHandling(new UploadFileBackupDTO
+                        {
+                            archiveFolder = item.ArchiveFolder,
+                            cleanUpDays = item.CleanUpPeriodDays,
+                            fileMask = item.FileMask,
+                            localFilePath = filePath,
+                            remoteFolder = item.RemoteFolder
+                        }, localHash, IoHelper);
                     }
                 }
                 
             }    
             foreach (var item in TimeSpecificUploads.Cast<TimeSpecificUpload>())
             {
-                foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, "*" + item.FileMask, SearchOption.AllDirectories))
+                foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask, SearchOption.AllDirectories))
                 {
                     var localHash = hashHelper.GenerateHash(filePath);
                     if (!repository.FileExistInDatabase(filePath))
@@ -124,13 +139,39 @@ namespace UploadService
                         });
                     }else if(!hashHelper.HashMatching(localHash, repository.GetFileByPath(filePath).HashedContent))
                     {
-                        hashHelper.UploadFile(filePath, item.RemoteFolder, localHash);
+                        hashHelper.UploadFileOnChange(filePath, item.RemoteFolder, localHash);
                     }
                 }
                 
-            }
+            }*/
  
             return base.StartAsync(cancellationToken);
+        }
+
+        private void HandleOnStart(IEnumerable<IUploadTypeConfiguration> list) 
+        {
+            foreach (var item in list.ToList())
+            {
+                foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask, SearchOption.AllDirectories))
+                {
+                    //var localHash = hashHelper.GenerateHash(filePath);
+                    
+                    
+                    
+                    
+                        //hashHelper.UploadFileOnChange(filePath, item.RemoteFolder, localHash);
+                        hashHelper.UploadFileWithBackupHandling(new UploadFileBackupDTO
+                        {
+                            archiveFolder = item.ArchiveFolder,
+                            cleanUpDays = item.CleanUpPeriodDays,
+                            fileMask = item.FileMask,
+                            localFilePath = filePath,
+                            remoteFolder = item.RemoteFolder
+                        }, IoHelper);
+                    
+                }
+                
+            }    
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
