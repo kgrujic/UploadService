@@ -1,9 +1,7 @@
 using System.IO;
 using System.Threading.Tasks;
-using UploadService.DTOs;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
-using UploadService.Utilities.IO_Helpers;
 using UploadServiceDatabase.DTOs;
 using UploadServiceDatabase.Repositories;
 
@@ -22,6 +20,7 @@ namespace UploadService.Utilities.UploadFiles
             _hashHelper = hashHelper;
         }
         
+        //TODO check archive and directory on FTP
 
         public async Task UploadFile(string localFilePath, string remoteFolder) 
         {

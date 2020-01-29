@@ -13,14 +13,12 @@ using UploadService.Configurations.UploadStrategies.Implementations;
 using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
-using UploadService.Utilities;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.CleaningOutdatedFiles;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
-using UploadServiceDatabase.DTOs;
 using UploadServiceDatabase.Repositories;
 
 namespace UploadService
@@ -29,21 +27,21 @@ namespace UploadService
     {
         private readonly ILogger<Worker> _logger;
 
-        public IEnumerable<IUploadTypeConfiguration> PeriodicalUploads;
-        public IEnumerable<IUploadTypeConfiguration> TimeSpecificUploads;
-        public IEnumerable<IUploadTypeConfiguration> OnChangeUploads;
-        public IEnumerable<IUploadTypeConfiguration> OnCreateUploads;
+        private IEnumerable<IUploadTypeConfiguration> PeriodicalUploads;
+        private IEnumerable<IUploadTypeConfiguration> TimeSpecificUploads;
+        private IEnumerable<IUploadTypeConfiguration> OnChangeUploads;
+        private IEnumerable<IUploadTypeConfiguration> OnCreateUploads;
 
 
-        public IServerConfiguration ftpServerConfiguration;
-        public IServerClient client;
-        public IIOHelper IoHelper;
-        public IHashHelper hashHelper;
-        public IUploadServiceRepository repository;
+        private IServerConfiguration _ftpServerConfiguration;
+        private IServerClient _client;
+        private IIOHelper _ioHelper;
+        private IHashHelper _hashHelper;
+        private IUploadServiceRepository _repository;
 
-        public IUpload _upload;
-        public IArchive _archive;
-        public IClineable _clean;
+        private IUpload _upload;
+        private IArchive _archive;
+        private IClineable _clean;
 
 
         private IUploadStrategy _PeriodicalStrategy;
@@ -59,16 +57,16 @@ namespace UploadService
             OnChangeUploads = settings.Value.OnChangeUploads;
             OnCreateUploads = settings.Value.OnCreateUploads;
 
-            ftpServerConfiguration = settings.Value.ftpServerConfiguration;
-            client = new FTPClient(ftpServerConfiguration.HostAddress, ftpServerConfiguration.Username,
-                ftpServerConfiguration.Password);
+            _ftpServerConfiguration = settings.Value.ftpServerConfiguration;
+            _client = new FTPClient(_ftpServerConfiguration.HostAddress, _ftpServerConfiguration.Username,
+                _ftpServerConfiguration.Password);
 
-            IoHelper = new IOHelper();
-            repository = new UploadServiceRepository();
-            hashHelper = new HashHelper(client, repository);
+            _ioHelper = new IOHelper();
+            _repository = new UploadServiceRepository();
+            _hashHelper = new HashHelper();
 
-            _upload = new UploadFiles(client, repository, hashHelper);
-            _archive = new ArchiveFiles();
+            _upload = new UploadFiles(_client, _repository, _hashHelper);
+            _archive = new ArchiveFiles(_ioHelper);
             _clean = new CleanOudatedFiles();
 
             

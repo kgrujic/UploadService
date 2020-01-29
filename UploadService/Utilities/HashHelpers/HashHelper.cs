@@ -12,29 +12,32 @@ namespace UploadService.Utilities.HashHelpers
 {
     public class HashHelper : IHashHelper
     {
-        private IServerClient _client;
-        private IUploadServiceRepository _repository;
-
-        public HashHelper(IServerClient client, IUploadServiceRepository repository)
+        
+        public HashHelper()
         {
-            _client = client;
-            _repository = repository;
+           
         }
-
-
+        
         public byte[] GenerateHash(string path)
         {
-            byte[] tmpHash;
-            using (HashAlgorithm hashAlg = HashAlgorithm.Create("MD5"))
+            try
             {
-                using (FileStream fsA = new FileStream(path, FileMode.Open))
+                byte[] tmpHash;
+                using (HashAlgorithm hashAlg = HashAlgorithm.Create("MD5"))
                 {
-                    // Calculate the hash for the files.
-                    tmpHash = hashAlg.ComputeHash(fsA);
+                    using (FileStream fsA = new FileStream(path, FileMode.Open))
+                    {
+                        // Calculate the hash for the files.
+                        tmpHash = hashAlg.ComputeHash(fsA);
+                    }
                 }
-            }
 
-            return tmpHash;
+                return tmpHash;
+            }
+            catch(DirectoryNotFoundException e)
+            {
+                throw e;
+            }
         }
 
         public bool HashMatching(byte[] hashFirst, byte[] hashSecond)
