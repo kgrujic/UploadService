@@ -22,10 +22,8 @@ namespace UploadService.Utilities.ArchiveFiles
             catch(DirectoryNotFoundException e)
             {
                 //Console.WriteLine($"Exception occured");
-                throw e;
+                //throw;
             }
-
-          
         }
     }
 }

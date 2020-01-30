@@ -127,6 +127,9 @@
           <e p="HashHelpersTests" t="Include">
             <e p="HashHelperTests.cs" t="Include" />
           </e>
+          <e p="UploadFilesTests" t="Include">
+            <e p="UploadFilesTests.cs" t="Include" />
+          </e>
         </e>
         <e p="bin" t="ExcludeRecursive" />
         <e p="obj" t="ExcludeRecursive">

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Autofac.Extras.Moq;
 using Moq;
 using NUnit.Framework;
 using UploadService.Utilities.ArchiveFiles;
@@ -25,24 +26,46 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
         [Test]
         public void SaveFileToArchiveFolder_ValidFilePaths_Successful()
         {
-            var dummySourcePath = "/path/source/my.txt";
-            var dummyDestinationPath = "/path/dest/my.txt";
-           _archive.SaveFileToArchiveFolder(dummySourcePath, dummyDestinationPath);
-            ioHelperMock.Verify(x => x.CopyFile(dummySourcePath,dummyDestinationPath));
+            using (var mock = AutoMock.GetLoose())
+            {
+                var dummySourcePath = "/path/source/my.txt";
+                var dummyDestinationPath = "/path/dest/my.txt";
+
+                mock.Mock<IIOHelper>()
+                    .Setup(x => x.CopyFile(dummySourcePath, dummyDestinationPath));
+                
+                var cls = mock.Create<ArchiveFiles>();
+                
+                cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
+                
+                mock.Mock<IIOHelper>()
+                    .Verify(X => X.CopyFile(dummySourcePath,dummyDestinationPath), Times.Exactly(1));
+
+            }
         }
 
         
         [Test]
         public void SaveFileToArchiveFolder_InvalidFilePaths_ThrowException()
         {
-            var dummySourcePath = "/path/source/my.txt";
-            var dummyDestinationPath = "/path/dest/my.txt";
-            /*ioHelperMock.Setup(x => x.CopyFile(dummySourcePath, dummyDestinationPath))
-                .Throws<DirectoryNotFoundException>();*/
-            
-            Assert.Throws<DirectoryNotFoundException>(() =>_archive.SaveFileToArchiveFolder(dummySourcePath, dummyDestinationPath));
-            
-            /*ioHelperMock.Verify(x => x.CopyFile(dummySourcePath,dummyDestinationPath));*/
+            using (var mock = AutoMock.GetLoose())
+            {
+                var dummySourcePath = "/path/source/my.txt";
+                string dummyDestinationPath = null;
+
+                mock.Mock<IIOHelper>()
+                    .Setup(x => x.CopyFile(dummySourcePath, dummyDestinationPath)).Throws<DirectoryNotFoundException>();
+                
+                
+                var cls = mock.Create<ArchiveFiles>();
+                cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
+              
+               //Assert.Catch<DirectoryNotFoundException>(() =>  cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath));
+               //mock.Mock<IIOHelper>()
+                   //.Verify(X => X.CopyFile(dummySourcePath,dummyDestinationPath));
+               
+
+            }
         }
     }
 }

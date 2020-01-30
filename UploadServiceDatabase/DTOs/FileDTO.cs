@@ -5,7 +5,8 @@ namespace UploadServiceDatabase.DTOs
     public class FileDTO
     {
         [Key]
-        public string FilePath { get; set; }
-        public byte[] HashedContent { get; set; }
+        public virtual string FilePath { get; set; }
+        //TODO remember
+        public virtual byte[] HashedContent { get; set; }
     }
 }

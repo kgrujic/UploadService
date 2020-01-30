@@ -36,21 +36,22 @@ namespace UploadService.Utilities.UploadFiles
                 {
                     _client.UploadFile(remoteFilePath, localFilePath, true);
 
-                    _repository.UpdateFile(new FileDTO()
+                    var dto = new FileDTO()
                     {
                         FilePath = localFilePath, HashedContent = localHash
-                    });
+                    };
+                    _repository.UpdateFile(dto);
                     
                 }
             }
             else
             {
                 _client.UploadFile(remoteFilePath, localFilePath, false);
-
-                _repository.InsertFile(new FileDTO()
+                var dto = new FileDTO()
                 {
                     FilePath = localFilePath, HashedContent = localHash
-                });
+                };
+                _repository.InsertFile(dto);
                 
             }
         }

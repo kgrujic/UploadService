@@ -53,7 +53,7 @@ namespace UploadServiceDatabase.Repositories
             }
         }
 
-        public void UpdateFile(FileDTO file)
+        public  void UpdateFile(FileDTO file)
         {
             using (var context = new UploadServiceContext())
             {
