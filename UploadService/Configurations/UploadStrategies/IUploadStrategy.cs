@@ -6,6 +6,6 @@ namespace UploadService.Configurations.UploadStrategies
 {
     public interface IUploadStrategy
     {
-         public void Upload();
+         public void Upload(IEnumerable<IUploadTypeConfiguration> periodicalUploads);
     }
 }

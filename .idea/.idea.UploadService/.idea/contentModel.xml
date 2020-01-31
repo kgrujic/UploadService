@@ -120,6 +120,9 @@
       <e p="UploadServiceTest" t="IncludeRecursive">
         <e p="UnitTest1.cs" t="Include" />
         <e p="UploadServiceTest.csproj" t="IncludeRecursive" />
+        <e p="UploadStrategiesTests" t="Include">
+          <e p="PeriodicalStrategyTests.cs" t="Include" />
+        </e>
         <e p="UtilitiesTests" t="Include">
           <e p="ArchiveFilesTests" t="Include">
             <e p="ArchiveFilesTests.cs" t="Include" />

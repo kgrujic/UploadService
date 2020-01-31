@@ -16,26 +16,26 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
     public class OnCreateStrategy : IUploadStrategy
     {
         
-        private IEnumerable<UploadOnCreate> _folders;
+       
         private IUpload _upload;
         private IArchive _archive;
         private IClineable _clean;
 
         private List<MyFileSystemWatcher> watchers;
 
-        public OnCreateStrategy(IEnumerable<IUploadTypeConfiguration> folders, IUpload upload, IArchive archive, IClineable clean)
+        public OnCreateStrategy(IUpload upload, IArchive archive, IClineable clean)
         {
-            _folders = folders.Cast<UploadOnCreate>();
+           
             _upload = upload;
             _archive = archive;
             _clean = clean;
         }
 
-        public void Upload()
+        public void Upload(IEnumerable<IUploadTypeConfiguration> ocCreateUploads)
         {
             watchers = new List<MyFileSystemWatcher>();
 
-            foreach (var folder in _folders)
+            foreach (var folder in ocCreateUploads.Cast<UploadOnCreate>())
             {
                 MyFileSystemWatcher watcher = CreateWatcher(folder);
                 watchers.Add(watcher);
@@ -48,10 +48,12 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             foreach (var w in watchers)
             {
+                // TODO refactor method
                 w.Created += async (sender, e) =>
                 {
                     Console.WriteLine("created" + e.ChangeType);
 
+                    //TODO path combine
                     var localFilePath = w.Path + "/" + e.Name;
               
                     await OnCreateEvent(new UploadFileBackupDTO

@@ -36,12 +36,13 @@ namespace UploadService.Utilities.HashHelpers
             }
             catch(DirectoryNotFoundException e)
             {
-                throw e;
+                throw;
             }
         }
 
         public bool HashMatching(byte[] hashFirst, byte[] hashSecond)
         {
+            //TODO equals
             if (BitConverter.ToString(hashFirst) == BitConverter.ToString(hashSecond))
             {
                 return true;

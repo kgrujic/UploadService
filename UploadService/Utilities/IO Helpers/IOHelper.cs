@@ -23,5 +23,10 @@ namespace UploadService.Utilities.IO_Helpers
         {
             File.Copy(sourceFilePath, backupFilePath, true);
         }
+
+        public void DeleteFile(string filePath)
+        {
+            File.Delete(filePath);
+        }
     }
 }

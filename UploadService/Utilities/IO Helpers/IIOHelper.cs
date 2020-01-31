@@ -7,7 +7,9 @@ namespace UploadService.Utilities.IO_Helpers
         
         bool FileExists(string fileName);
 
+        public void DeleteFile(string filePath);
+
         void CopyFile(string sourceFilePath, string backupFilePath);
-        /*void CleanOutdatedFiles(string folderPath,string fileMask, int numberOfDays);*/
+      
     }
 }

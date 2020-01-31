@@ -1,5 +1,8 @@
 namespace UploadService.Configurations.ServerConfigurations.Implementations
 {
+    /// <summary>
+    /// Ovo je objasnjenje
+    /// </summary>
     public class FTPServerConfiguration : IServerConfiguration
     {
         public FTPServerConfiguration()

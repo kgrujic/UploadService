@@ -27,53 +27,41 @@ namespace UploadService
     {
         private readonly ILogger<Worker> _logger;
 
-        private IEnumerable<IUploadTypeConfiguration> PeriodicalUploads;
-        private IEnumerable<IUploadTypeConfiguration> TimeSpecificUploads;
-        private IEnumerable<IUploadTypeConfiguration> OnChangeUploads;
-        private IEnumerable<IUploadTypeConfiguration> OnCreateUploads;
+        private IEnumerable<IUploadTypeConfiguration> _periodicalUploads;
+        private IEnumerable<IUploadTypeConfiguration> _timeSpecificUploads;
+        private IEnumerable<IUploadTypeConfiguration> _onChangeUploads;
+        private IEnumerable<IUploadTypeConfiguration> _onCreateUploads;
 
 
         private IServerConfiguration _ftpServerConfiguration;
-        private IServerClient _client;
-        private IIOHelper _ioHelper;
+        //private IServerClient _client;
+        /*private IIOHelper _ioHelper;
         private IHashHelper _hashHelper;
         private IUploadServiceRepository _repository;
 
         private IUpload _upload;
         private IArchive _archive;
-        private IClineable _clean;
+        private IClineable _clean;*/
 
 
-        private IUploadStrategy _PeriodicalStrategy;
-        private IUploadStrategy _TimeStrategy;
-        private IUploadStrategy _OnChangeStrategy;
-        private IUploadStrategy _OnCreateStrategy;
+        private IUploadStrategy _periodicalStrategy;
+        private IUploadStrategy _timeStrategy;
+        private IUploadStrategy _onChangeStrategy;
+        private IUploadStrategy _onCreateStrategy;
 
 
-        public Worker(ILogger<Worker> logger, IOptions<AppSettings> settings)
+        public Worker(ILogger<Worker> logger, IOptions<AppSettings> settings, IIOHelper ioHelper,IUploadServiceRepository repository, IHashHelper hashHelper,IUpload upload, IArchive archive, IClineable clean)
         {
-            PeriodicalUploads = settings.Value.PeriodicalUploads;
-            TimeSpecificUploads = settings.Value.TimeSpecificUploads;
-            OnChangeUploads = settings.Value.OnChangeUploads;
-            OnCreateUploads = settings.Value.OnCreateUploads;
+            _periodicalUploads = settings.Value.PeriodicalUploads;
+            _timeSpecificUploads = settings.Value.TimeSpecificUploads;
+            _onChangeUploads = settings.Value.OnChangeUploads;
+            _onCreateUploads = settings.Value.OnCreateUploads;
 
-            _ftpServerConfiguration = settings.Value.ftpServerConfiguration;
-            _client = new FTPClient(_ftpServerConfiguration.HostAddress, _ftpServerConfiguration.Username,
-                _ftpServerConfiguration.Password);
 
-            _ioHelper = new IOHelper();
-            _repository = new UploadServiceRepository();
-            _hashHelper = new HashHelper();
-
-            _upload = new UploadFiles(_client, _repository, _hashHelper);
-            _archive = new ArchiveFiles(_ioHelper);
-            _clean = new CleanOudatedFiles();
-
-            
-            _PeriodicalStrategy = new PeriodicalStrategy(PeriodicalUploads, _upload, _archive, _clean);
-            _TimeStrategy = new TimeSpecificStrategy(TimeSpecificUploads, _upload, _archive, _clean);
-            _OnChangeStrategy = new OnChangeStrategy(OnChangeUploads, _upload);
-            _OnCreateStrategy = new OnCreateStrategy(OnCreateUploads, _upload, _archive, _clean);
+            _periodicalStrategy = new PeriodicalStrategy(upload, archive, clean);
+            _timeStrategy = new TimeSpecificStrategy(upload, archive, clean);
+            _onChangeStrategy = new OnChangeStrategy(upload);
+            _onCreateStrategy = new OnCreateStrategy(upload, archive, clean);
             _logger = logger;
         }
 
@@ -90,7 +78,7 @@ namespace UploadService
             return base.StartAsync(cancellationToken);
         }
 
-        private void HandleOnStart(IEnumerable<IUploadTypeConfiguration> list)
+        /*private void HandleOnStart(IEnumerable<IUploadTypeConfiguration> list)
         {
             foreach (var item in list.ToList())
             {
@@ -120,14 +108,14 @@ namespace UploadService
             {
                 _upload.UploadFile(file.LocalFilePath, file.RemoteFolder);
             }
-        }
+        }*/
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-          //  _PeriodicalStrategy.Upload();
-           // _TimeStrategy.Upload();
-           // _OnChangeStrategy.Upload();
-           // _OnCreateStrategy.Upload();
+           _periodicalStrategy.Upload(_periodicalUploads);
+           // _TimeStrategy.Upload(TimeSpecificUploads);
+           // _OnChangeStrategy.Upload(_onChangeUploads);
+           // _OnCreateStrategy.Upload(OnCreateUploads);
         }
     }
 }

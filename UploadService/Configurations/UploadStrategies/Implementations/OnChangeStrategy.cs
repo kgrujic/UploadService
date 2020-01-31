@@ -11,24 +11,23 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class OnChangeStrategy : IUploadStrategy
     {
-        private IEnumerable<UploadOnChange> _filesToUpload;
+        
         private IUpload _upload;
 
 
         private List<MyFileSystemWatcher> watchers;
 
-        public OnChangeStrategy(IEnumerable<IUploadTypeConfiguration> filesToUpload, IUpload upload)
+        public OnChangeStrategy(IUpload upload)
         {
-            _filesToUpload = filesToUpload.Cast<UploadOnChange>();
             _upload = upload;
         }
 
 
-        public void Upload()
+        public void Upload(IEnumerable<IUploadTypeConfiguration> onChangeUpload)
         {
             watchers = new List<MyFileSystemWatcher>();
 
-            foreach (var file in _filesToUpload)
+            foreach (var file in onChangeUpload.Cast<UploadOnChange>())
             {
                 MyFileSystemWatcher watcher = CreateWatcher(file);
                 watchers.Add(watcher);

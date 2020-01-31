@@ -14,29 +14,26 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 {
     public class TimeSpecificStrategy : IUploadStrategy
     {
-
-        private IEnumerable<TimeSpecificUpload> _foldersToUpload;
         private IUpload _upload;
         private IArchive _archive;
         private IClineable _clean;
 
-        public TimeSpecificStrategy(IEnumerable<IUploadTypeConfiguration> foldersToUpload,IUpload upload, IArchive archive, IClineable clean)
+        public TimeSpecificStrategy(IUpload upload, IArchive archive, IClineable clean)
         {
-            _foldersToUpload = foldersToUpload.Cast<TimeSpecificUpload>();
             _upload = upload;
             _archive = archive;
             _clean = clean;
         }
 
-        public void Upload()
+        public void Upload(IEnumerable<IUploadTypeConfiguration> timeSpecificlUploads)
         {
             List<Timer> timerMatrix = new List<Timer>();
 
-            foreach (var item in _foldersToUpload)
+            foreach (var item in timeSpecificlUploads.Cast<TimeSpecificUpload>())
             {
                 DateTime dt = item.Time.ToUniversalTime();
 
-                var scheduledTime = DateTime.Today.AddDays(0).AddHours(dt.Hour).AddMinutes(dt.Minute);
+                var scheduledTime = DateTime.Today.AddHours(dt.Hour).AddMinutes(dt.Minute);
 
 
                 var timer = new Timer();
@@ -45,14 +42,14 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 if (DateTime.Now > scheduledTime)
                     scheduledTime = scheduledTime.AddDays(1);
 
-                timer.Interval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
+                timer.Interval = scheduledTime.Subtract(DateTime.Now).TotalMilliseconds;
                 timer.AutoReset = true;
 
                 timerMatrix.Add(timer);
 
                 timer.Elapsed += (sender, e) =>
                 {
-                    var path = item.LocalFolderPath;
+                   
                     OnTimedEvent(item, scheduledTime, timer);
                 };
             }
@@ -60,9 +57,9 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
         private void OnTimedEvent(TimeSpecificUpload item, DateTime scheduledTime, Timer timer)
         {
-            double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
-            if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;
-            timer.Interval = tillNextInterval;
+            //double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
+            //if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;
+            timer.Interval = TimeSpan.FromHours(24).Milliseconds;
 
 
             var remoteFolder = item.RemoteFolder;
@@ -71,21 +68,20 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             var cleanUpDays = item.CleanUpPeriodDays;
             var localFolderPath = item.LocalFolderPath;
 
-           // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
-           
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
+            // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
+
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories)
+            )
             {
-                
                 var dto = new UploadFileBackupDTO
                 {
                     archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
                     fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
                 };
-                    _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
-                    _clean.CleanOutdatedFilesOnDays(dto.archiveFolder,dto.fileMask, dto.cleanUpDays);
-                    _archive.SaveFileToArchiveFolder(dto.localFilePath,  Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
-                
-              
+                _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
+                _clean.CleanOutdatedFilesOnDays(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
+                _archive.SaveFileToArchiveFolder(dto.localFilePath,
+                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
             }
         }
     }

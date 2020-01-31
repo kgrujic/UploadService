@@ -19,6 +19,7 @@ namespace UploadService.Utilities.Clients
         /* Construct Object */
         public FTPClient(string hostIP, string userName, string password)
         {
+            //TODO ADD PORT
             host = hostIP;
             user = userName;
             pass = password;
@@ -35,6 +36,7 @@ namespace UploadService.Utilities.Clients
                     delete(remoteFile);
                 }
                 /* Create an FTP Request*/
+                //TODO path combine
                 ftpRequest = (FtpWebRequest) FtpWebRequest.Create(host + "/"+ remoteFile);
                 
                 /* Log in to the FTP Server*/
@@ -50,7 +52,7 @@ namespace UploadService.Utilities.Clients
                 
                 /* Establish Return communication with the FTP server */
                 ftpStream = ftpRequest.GetRequestStream();
-                
+                // TODO using
                 /* Open a File Stream to Read the File for Upload */
                 FileStream localFileStream  = new FileStream(localFFile, FileMode.OpenOrCreate);
                 
