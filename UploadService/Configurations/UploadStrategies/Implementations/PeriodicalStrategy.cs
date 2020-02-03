@@ -11,7 +11,7 @@ using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
-    public class PeriodicalStrategy : IUploadStrategy
+    public class PeriodicalStrategy : IUploadStrategy<PeriodicalUpload>
     {
        
         private IUpload _upload;
@@ -26,16 +26,13 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             _archive = archive;
             _clean = clean;
         }
+        
 
-        public PeriodicalStrategy()
-        {
-        }
-
-        public void Upload(IEnumerable<IUploadTypeConfiguration> periodicalUploads)
+        public void Upload(IEnumerable<PeriodicalUpload> periodicalUploads)
         {
            // List<Timer> timerMatrix = new List<Timer>();
 
-           foreach (var item in periodicalUploads.Cast<PeriodicalUpload>())
+           foreach (var item in periodicalUploads)
             {
                 var timer = new System.Timers.Timer()
                 {

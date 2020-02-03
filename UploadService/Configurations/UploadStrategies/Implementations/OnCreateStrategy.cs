@@ -13,10 +13,8 @@ using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
-    public class OnCreateStrategy : IUploadStrategy
+    public class OnCreateStrategy : IUploadStrategy<UploadOnCreate>
     {
-        
-       
         private IUpload _upload;
         private IArchive _archive;
         private IClineable _clean;
@@ -31,11 +29,11 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             _clean = clean;
         }
 
-        public void Upload(IEnumerable<IUploadTypeConfiguration> ocCreateUploads)
+        public void Upload(IEnumerable<UploadOnCreate> ocCreateUploads)
         {
             watchers = new List<MyFileSystemWatcher>();
 
-            foreach (var folder in ocCreateUploads.Cast<UploadOnCreate>())
+            foreach (var folder in ocCreateUploads)
             {
                 MyFileSystemWatcher watcher = CreateWatcher(folder);
                 watchers.Add(watcher);
@@ -102,5 +100,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             _clean.CleanOutdatedFilesOnDays(dto.archiveFolder,dto.fileMask, dto.cleanUpDays);
             _archive.SaveFileToArchiveFolder(dto.localFilePath,  Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
         }
+
+       
     }
 }

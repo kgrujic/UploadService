@@ -19,17 +19,16 @@ namespace UploadService.Utilities.UploadFiles
             _repository = repository;
             _hashHelper = hashHelper;
         }
-        
+
         //TODO check archive and directory on FTP
 
-        public async Task UploadFile(string localFilePath, string remoteFolder) 
+        public async Task UploadFile(string localFilePath, string remoteFolder)
         {
-            var remoteFilePath = Path.Combine("home/katarina/", remoteFolder, Path.GetFileName(localFilePath));
-            
-            var localHash = _hashHelper.GenerateHash(localFilePath);
-           
+            var remoteFilePath = Path.Combine("/home/katarina/", remoteFolder, Path.GetFileName(localFilePath));
 
-            if (_client.checkIfFileExists(remoteFilePath))
+            var localHash = _hashHelper.GenerateHash(localFilePath);
+
+            if (_repository.FileExistInDatabase(localFilePath) && _client.CheckIfFileExists(remoteFilePath))
             {
                 var hashFromDb = _repository.GetFileByPath(localFilePath).HashedContent;
                 if (!_hashHelper.HashMatching(localHash, hashFromDb))
@@ -41,9 +40,9 @@ namespace UploadService.Utilities.UploadFiles
                         FilePath = localFilePath, HashedContent = localHash
                     };
                     _repository.UpdateFile(dto);
-                    
                 }
             }
+
             else
             {
                 _client.UploadFile(remoteFilePath, localFilePath, false);
@@ -51,8 +50,16 @@ namespace UploadService.Utilities.UploadFiles
                 {
                     FilePath = localFilePath, HashedContent = localHash
                 };
-                _repository.InsertFile(dto);
-                
+                if (_repository.FileExistInDatabase(localFilePath))
+                {
+                    _repository.UpdateFile(dto);
+                }
+                else
+                {
+                    _repository.InsertFile(dto);
+                }
+
+          
             }
         }
     }

@@ -12,7 +12,7 @@ using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
-    public class TimeSpecificStrategy : IUploadStrategy
+    public class TimeSpecificStrategy : IUploadStrategy<TimeSpecificUpload>
     {
         private IUpload _upload;
         private IArchive _archive;
@@ -25,17 +25,16 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             _clean = clean;
         }
 
-        public void Upload(IEnumerable<IUploadTypeConfiguration> timeSpecificlUploads)
+        public void Upload(IEnumerable<TimeSpecificUpload> timeSpecificlUploads)
         {
             List<Timer> timerMatrix = new List<Timer>();
 
-            foreach (var item in timeSpecificlUploads.Cast<TimeSpecificUpload>())
+            foreach (var item in timeSpecificlUploads)
             {
                 DateTime dt = item.Time.ToUniversalTime();
 
                 var scheduledTime = DateTime.Today.AddHours(dt.Hour).AddMinutes(dt.Minute);
-
-
+                
                 var timer = new Timer();
                 timer.Enabled = true;
 
@@ -53,15 +52,16 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                     OnTimedEvent(item, scheduledTime, timer);
                 };
             }
+          
         }
 
         private void OnTimedEvent(TimeSpecificUpload item, DateTime scheduledTime, Timer timer)
         {
-            //double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
-            //if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;
-            timer.Interval = TimeSpan.FromHours(24).Milliseconds;
+            /*double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
+            if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;*/
+           
 
-
+            Console.WriteLine("In timer" + DateTime.Now);
             var remoteFolder = item.RemoteFolder;
             var fileMask = item.FileMask;
             var archiveFolder = item.ArchiveFolder;
@@ -70,8 +70,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
             // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
 
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories)
-            )
+            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
             {
                 var dto = new UploadFileBackupDTO
                 {
@@ -83,6 +82,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 _archive.SaveFileToArchiveFolder(dto.localFilePath,
                     Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
             }
+            timer.Interval = TimeSpan.FromHours(24).Milliseconds;
+          
         }
     }
 }

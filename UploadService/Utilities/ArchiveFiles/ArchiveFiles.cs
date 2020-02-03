@@ -12,7 +12,7 @@ namespace UploadService.Utilities.ArchiveFiles
         {
             _ioHelper = ioHelper;
         }
-        //TODO delete file
+        
         public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
         {
             try

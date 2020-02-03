@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using UploadService.Configurations.UploadStrategies;
+using UploadService.Configurations.UploadStrategies.Implementations;
+using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.CleaningOutdatedFiles;
 using UploadService.Utilities.Clients;
@@ -32,16 +35,18 @@ namespace UploadService
                     services.AddSingleton<IHashHelper, HashHelper>();
                     services.AddSingleton<IUploadServiceRepository, UploadServiceRepository>();
                     
-                    services.AddSingleton<IServerClient, FTPClient>(u =>
+                    services.AddSingleton<IServerClient, FtpClient>(u =>
                     {
                         var host = hostContext.Configuration.GetSection("AppSettings")
                             .GetSection("ftpServerConfiguration").GetSection("HostAddress").Value;
                         var username = hostContext.Configuration.GetSection("AppSettings")
                             .GetSection("ftpServerConfiguration").GetSection( "Username" ).Value;
                         var pass = hostContext.Configuration.GetSection("AppSettings")
-                            .GetSection("ftpServerConfiguration").GetSection("Password").Value;
+                            .GetSection("ftpServerConfiguration").GetSection("Password").Value;   
+                        var port = Convert.ToInt32(hostContext.Configuration.GetSection("AppSettings")
+                            .GetSection("ftpServerConfiguration").GetSection("PortNumber").Value);
                         
-                        return new FTPClient(host,username,pass);
+                        return new FtpClient(host,username,pass,port);
                         
                     });
 
@@ -51,8 +56,15 @@ namespace UploadService
                     ));
                     services.AddSingleton<IArchive>(u => new ArchiveFiles(u.GetRequiredService<IIOHelper>()
                     ));
+
+                    services.AddSingleton<IUploadStrategy<PeriodicalUpload>, PeriodicalStrategy>();   
                     
-                    //services.AddScoped<IArchive, ArchiveFiles>();
+                    services.AddSingleton<IUploadStrategy<TimeSpecificUpload>, TimeSpecificStrategy>();  
+                    
+                    services.AddSingleton<IUploadStrategy<UploadOnCreate>, OnCreateStrategy>();
+                    
+                    services.AddSingleton<IUploadStrategy<UploadOnChange>,OnChangeStrategy>();
+                    
                     services.AddSingleton<IClineable, CleanOudatedFiles>();
                 
                     

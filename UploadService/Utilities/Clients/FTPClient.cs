@@ -4,25 +4,26 @@ using System.Net;
 
 namespace UploadService.Utilities.Clients
 {
-    public class FTPClient : IServerClient
+    public class FtpClient : IServerClient
     {
-        private string host = null;
-        private string user = null;
-        private string pass = null;
-        private FtpWebRequest ftpRequest = null;
-        private FtpWebRequest ftpRequestDelete = null;
-        private FtpWebResponse ftpResponse = null;
-        private FtpWebResponse ftpResponseDelete = null;
-        private Stream ftpStream = null;
-        private int bufferSize = 2048;
+        private string _host = null;
+        private string _user = null;
+        private string _pass = null;
+        private int _port = 0;
+        private FtpWebRequest _ftpRequest = null;
+        private FtpWebRequest _ftpRequestDelete = null;
+        private FtpWebResponse _ftpResponse = null;
+        private FtpWebResponse _ftpResponseDelete = null;
+        private Stream _ftpStream = null;
+        private int _bufferSize = 2048;
         
         /* Construct Object */
-        public FTPClient(string hostIP, string userName, string password)
+        public FtpClient(string hostIP, string userName, string password, int port)
         {
-            //TODO ADD PORT
-            host = hostIP;
-            user = userName;
-            pass = password;
+            _host = hostIP;
+            _user = userName;
+            _pass = password;
+            _port = port;
         }
         
         /* Upload File */
@@ -33,32 +34,33 @@ namespace UploadService.Utilities.Clients
             {
                 if (overwrite)
                 {
-                    delete(remoteFile);
+                    Delete(remoteFile);
                 }
+
+    
                 /* Create an FTP Request*/
-                //TODO path combine
-                ftpRequest = (FtpWebRequest) FtpWebRequest.Create(host + "/"+ remoteFile);
+                _ftpRequest = (FtpWebRequest) FtpWebRequest.Create(_host+remoteFile);
                 
                 /* Log in to the FTP Server*/
-                ftpRequest.Credentials = new NetworkCredential(user,pass);
+                _ftpRequest.Credentials = new NetworkCredential(_user,_pass);
                 
                 /* When in doubt use these options*/
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
+                _ftpRequest.UseBinary = true;
+                _ftpRequest.UsePassive = true;
+                _ftpRequest.KeepAlive = true;
                 
                 /* Specify the Type of FTP request */
-                ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+                _ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
                 
                 /* Establish Return communication with the FTP server */
-                ftpStream = ftpRequest.GetRequestStream();
-                // TODO using
+                _ftpStream = _ftpRequest.GetRequestStream();
+                
                 /* Open a File Stream to Read the File for Upload */
                 FileStream localFileStream  = new FileStream(localFFile, FileMode.OpenOrCreate);
                 
                 /* Buffer for the Downloaded Data */
-                byte[] byteBuffer = new byte[bufferSize];
-                int bytesSent = localFileStream.Read(byteBuffer, 0, bufferSize);
+                byte[] byteBuffer = new byte[_bufferSize];
+                int bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
 
               
 
@@ -67,8 +69,8 @@ namespace UploadService.Utilities.Clients
                 {
                     while (bytesSent != 0)
                     {
-                        ftpStream.Write(byteBuffer, 0, bytesSent);
-                        bytesSent = localFileStream.Read(byteBuffer, 0, bufferSize);
+                        _ftpStream.Write(byteBuffer, 0, bytesSent);
+                        bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
                     }
                     //Console.WriteLine(localFFile);
                 }
@@ -89,26 +91,29 @@ namespace UploadService.Utilities.Clients
             return;
             
         }
-        public void delete(string deleteFile)
+
+       
+
+        public void Delete(string deleteFile)
         {
            
             try
             {
                 /* Create an FTP Request */
-                ftpRequest = (FtpWebRequest) WebRequest.Create(host + "/" + deleteFile);
+                _ftpRequest = (FtpWebRequest) WebRequest.Create(_host + deleteFile);
                 /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
+                _ftpRequest.Credentials = new NetworkCredential(_user, _pass);
                 /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
+                _ftpRequest.UseBinary = true;
+                _ftpRequest.UsePassive = true;
+                _ftpRequest.KeepAlive = true;
                 /* Specify the Type of FTP Request */
-                ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
+                _ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
                 /* Establish Return Communication with the FTP Server */
-                ftpResponse = (FtpWebResponse) ftpRequest.GetResponse();
+                _ftpResponse = (FtpWebResponse) _ftpRequest.GetResponse();
                 /* Resource Cleanup */
-                ftpResponse.Close();
-                ftpRequest = null;
+                _ftpResponse.Close();
+                _ftpRequest = null;
             }
             catch (Exception ex)
             {
@@ -120,11 +125,11 @@ namespace UploadService.Utilities.Clients
             return;
         }
 
-        public bool checkIfFileExists(string filePath)
+        public bool CheckIfFileExists(string filePath)
         {
             bool exists = false;
-            var request = (FtpWebRequest)WebRequest.Create(host + "/" + filePath);
-            request.Credentials = new NetworkCredential(user, pass);
+            var request = (FtpWebRequest)WebRequest.Create(_host + filePath);
+            request.Credentials = new NetworkCredential(_user, _pass);
             request.Method = WebRequestMethods.Ftp.GetFileSize;
             
             try
@@ -145,17 +150,17 @@ namespace UploadService.Utilities.Clients
             return exists;
         }
         
-        public bool directoryExists(string directory)
+        public bool DirectoryExists(string directory)
         {
             /* Create an FTP Request */
-            ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + directory);
+            _ftpRequest = (FtpWebRequest)FtpWebRequest.Create(_host  + directory);
             /* Log in to the FTP Server with the User Name and Password Provided */
-            ftpRequest.Credentials = new NetworkCredential(user, pass);
+            _ftpRequest.Credentials = new NetworkCredential(_user, _pass);
             /* Specify the Type of FTP Request */
-            ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+            _ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
             try
             {
-                using (FtpWebResponse response = (FtpWebResponse)ftpRequest.GetResponse())
+                using (FtpWebResponse response = (FtpWebResponse)_ftpRequest.GetResponse())
                 {
                     return true;
                 }
@@ -168,7 +173,7 @@ namespace UploadService.Utilities.Clients
             /* Resource Cleanup */
             finally
             {
-                ftpRequest = null;
+                _ftpRequest = null;
             }
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,11 +10,9 @@ using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
-    public class OnChangeStrategy : IUploadStrategy
+    public class OnChangeStrategy : IUploadStrategy<UploadOnChange>
     {
-        
         private IUpload _upload;
-
 
         private List<MyFileSystemWatcher> watchers;
 
@@ -23,11 +22,11 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         }
 
 
-        public void Upload(IEnumerable<IUploadTypeConfiguration> onChangeUpload)
+        public void Upload(IEnumerable<UploadOnChange> onChangeUploads)
         {
             watchers = new List<MyFileSystemWatcher>();
 
-            foreach (var file in onChangeUpload.Cast<UploadOnChange>())
+            foreach (var file in onChangeUploads)
             {
                 MyFileSystemWatcher watcher = CreateWatcher(file);
                 watchers.Add(watcher);
@@ -35,6 +34,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
             AddEventHandlers();
         }
+
 
         void AddEventHandlers()
         {

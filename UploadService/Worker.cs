@@ -20,6 +20,7 @@ using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
 using UploadServiceDatabase.Repositories;
+using Timer = System.Timers.Timer;
 
 namespace UploadService
 {
@@ -27,41 +28,34 @@ namespace UploadService
     {
         private readonly ILogger<Worker> _logger;
 
-        private IEnumerable<IUploadTypeConfiguration> _periodicalUploads;
-        private IEnumerable<IUploadTypeConfiguration> _timeSpecificUploads;
-        private IEnumerable<IUploadTypeConfiguration> _onChangeUploads;
-        private IEnumerable<IUploadTypeConfiguration> _onCreateUploads;
+        private IEnumerable<PeriodicalUpload> _periodicalUploads;
+        private IEnumerable<TimeSpecificUpload> _timeSpecificUploads;
+        private IEnumerable<UploadOnChange> _onChangeUploads;
+        private IEnumerable<UploadOnCreate> _onCreateUploads;
 
 
         private IServerConfiguration _ftpServerConfiguration;
-        //private IServerClient _client;
-        /*private IIOHelper _ioHelper;
-        private IHashHelper _hashHelper;
-        private IUploadServiceRepository _repository;
-
-        private IUpload _upload;
-        private IArchive _archive;
-        private IClineable _clean;*/
+   
+        
+        private IUploadStrategy<PeriodicalUpload> _periodicalStrategy;
+        private IUploadStrategy<TimeSpecificUpload> _timeStrategy;
+        private IUploadStrategy<UploadOnChange> _onChangeStrategy;
+        private IUploadStrategy<UploadOnCreate> _onCreateStrategy;
 
 
-        private IUploadStrategy _periodicalStrategy;
-        private IUploadStrategy _timeStrategy;
-        private IUploadStrategy _onChangeStrategy;
-        private IUploadStrategy _onCreateStrategy;
-
-
-        public Worker(ILogger<Worker> logger, IOptions<AppSettings> settings, IIOHelper ioHelper,IUploadServiceRepository repository, IHashHelper hashHelper,IUpload upload, IArchive archive, IClineable clean)
+        public Worker(ILogger<Worker> logger, IOptions<AppSettings> settings, IIOHelper ioHelper,IUploadServiceRepository repository, IHashHelper hashHelper,IUpload upload, IArchive archive, IClineable clean,
+            IUploadStrategy<PeriodicalUpload> periodicalStrategy, IUploadStrategy<TimeSpecificUpload> timeStrategy, IUploadStrategy<UploadOnChange> onChangeStrategy, IUploadStrategy<UploadOnCreate> onCreateStrategy)
         {
             _periodicalUploads = settings.Value.PeriodicalUploads;
             _timeSpecificUploads = settings.Value.TimeSpecificUploads;
             _onChangeUploads = settings.Value.OnChangeUploads;
             _onCreateUploads = settings.Value.OnCreateUploads;
-
-
-            _periodicalStrategy = new PeriodicalStrategy(upload, archive, clean);
-            _timeStrategy = new TimeSpecificStrategy(upload, archive, clean);
-            _onChangeStrategy = new OnChangeStrategy(upload);
-            _onCreateStrategy = new OnCreateStrategy(upload, archive, clean);
+            
+            _periodicalStrategy = periodicalStrategy;
+            _timeStrategy = timeStrategy;
+            _onChangeStrategy = onChangeStrategy;
+            _onCreateStrategy = onCreateStrategy;
+            
             _logger = logger;
         }
 
@@ -69,7 +63,7 @@ namespace UploadService
         {
             _logger.LogInformation($"Worker started at: {DateTime.Now}");
 
-           
+           // TODO extract to strategy
             /*HandleOnStartOnChange(OnChangeUploads); 
             HandleOnStart(PeriodicalUploads);
             HandleOnStart(TimeSpecificUploads);
@@ -112,10 +106,10 @@ namespace UploadService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-           _periodicalStrategy.Upload(_periodicalUploads);
-           // _TimeStrategy.Upload(TimeSpecificUploads);
-           // _OnChangeStrategy.Upload(_onChangeUploads);
-           // _OnCreateStrategy.Upload(OnCreateUploads);
+           //_periodicalStrategy.Upload(_periodicalUploads);
+          // _timeStrategy.Upload(_timeSpecificUploads);
+           _onChangeStrategy.Upload(_onChangeUploads);
+           //_onCreateStrategy.Upload(_onCreateUploads);
         }
     }
 }

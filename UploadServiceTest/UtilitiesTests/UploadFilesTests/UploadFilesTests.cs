@@ -37,7 +37,7 @@ namespace UploadServiceTest.UtilitiesTests.UploadFilesTests
                     .Returns(hashDLocal);
 
                 mock.Mock<IServerClient>()
-                    .Setup(c => c.checkIfFileExists(dummyRemoteFilePath))
+                    .Setup(c => c.CheckIfFileExists(dummyRemoteFilePath))
                     .Returns(true);
 
                 mock.Mock<IUploadServiceRepository>()
@@ -60,7 +60,7 @@ namespace UploadServiceTest.UtilitiesTests.UploadFilesTests
                 
 
                 mock.Mock<IServerClient>()
-                    .Verify(X => X.checkIfFileExists(dummyRemoteFilePath), Times.Exactly(1));
+                    .Verify(X => X.CheckIfFileExists(dummyRemoteFilePath), Times.Exactly(1));
 
                 mock.Mock<IHashHelper>()
                     .Verify(X => X.GenerateHash(dummySourcePath), Times.Exactly(1));
@@ -101,7 +101,7 @@ namespace UploadServiceTest.UtilitiesTests.UploadFilesTests
                     .Returns(hashDLocal);
 
                 mock.Mock<IServerClient>()
-                    .Setup(c => c.checkIfFileExists(dummyRemoteFilePath))
+                    .Setup(c => c.CheckIfFileExists(dummyRemoteFilePath))
                     .Returns(true);
 
                 mock.Mock<IUploadServiceRepository>()
@@ -124,7 +124,7 @@ namespace UploadServiceTest.UtilitiesTests.UploadFilesTests
                 
 
                 mock.Mock<IServerClient>()
-                    .Verify(X => X.checkIfFileExists(dummyRemoteFilePath), Times.Exactly(1));
+                    .Verify(X => X.CheckIfFileExists(dummyRemoteFilePath), Times.Exactly(1));
 
                 mock.Mock<IHashHelper>()
                     .Verify(X => X.GenerateHash(dummySourcePath), Times.Exactly(1));
@@ -165,7 +165,7 @@ namespace UploadServiceTest.UtilitiesTests.UploadFilesTests
                     .Returns(hashDLocal);
 
                 mock.Mock<IServerClient>()
-                    .Setup(c => c.checkIfFileExists(dummyRemoteFilePath))
+                    .Setup(c => c.CheckIfFileExists(dummyRemoteFilePath))
                     .Returns(false);
                 
 
@@ -181,7 +181,7 @@ namespace UploadServiceTest.UtilitiesTests.UploadFilesTests
                 
 
                 mock.Mock<IServerClient>()
-                    .Verify(X => X.checkIfFileExists(dummyRemoteFilePath), Times.Exactly(1));
+                    .Verify(X => X.CheckIfFileExists(dummyRemoteFilePath), Times.Exactly(1));
 
                 mock.Mock<IHashHelper>()
                     .Verify(X => X.GenerateHash(dummySourcePath), Times.Exactly(1));
