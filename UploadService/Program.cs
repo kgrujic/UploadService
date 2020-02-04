@@ -30,10 +30,6 @@ namespace UploadService
                 {
                     services.AddHostedService<Worker>();
                     services.Configure<AppSettings>(hostContext.Configuration.GetSection("AppSettings"));
-                    // TODO refactor
-                    services.AddSingleton<IIoHelper, IoHelper>();
-                    services.AddSingleton<IHashHelper, HashHelper>();
-                    services.AddSingleton<IUploadServiceRepository, UploadServiceRepository>();
                     
                     services.AddSingleton<IServerClient, FtpClient>(u =>
                     {
@@ -50,22 +46,20 @@ namespace UploadService
                         
                     });
 
-                    services.AddSingleton<IUpload>(u => new UploadFiles(u.GetRequiredService<IServerClient>(),
-                        u.GetRequiredService<IUploadServiceRepository>(),
-                        u.GetRequiredService<IHashHelper>()
-                    ));
-                    services.AddSingleton<IArchive>(u => new ArchiveFiles(u.GetRequiredService<IIoHelper>()
-                    ));
+                    services.AddSingleton<IIoHelper, IoHelper>();
+                    services.AddSingleton<IHashHelper, HashHelper>();
+                    services.AddSingleton<IUploadServiceRepository, UploadServiceRepository>();
+                    
+                    services.AddSingleton<IUpload, UploadFiles>();
+                    services.AddSingleton<IArchive, ArchiveFiles>();
+                    services.AddSingleton<IClineable, CleanOudatedFiles>();
 
-                    services.AddSingleton<IUploadStrategy<PeriodicalUpload>, PeriodicalStrategy>();   
-                    
-                    services.AddSingleton<IUploadStrategy<TimeSpecificUpload>, TimeSpecificStrategy>();  
-                    
+                    services.AddSingleton<IUploadStrategy<PeriodicalUpload>, PeriodicalStrategy>();
+                    services.AddSingleton<IUploadStrategy<TimeSpecificUpload>, TimeSpecificStrategy>();
                     services.AddSingleton<IUploadStrategy<UploadOnCreate>, OnCreateStrategy>();
-                    
                     services.AddSingleton<IUploadStrategy<UploadOnChange>,OnChangeStrategy>();
                     
-                    services.AddSingleton<IClineable, CleanOudatedFiles>();
+                  
                 
                     
                 }).UseSystemd();
