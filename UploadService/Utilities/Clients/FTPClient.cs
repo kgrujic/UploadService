@@ -16,8 +16,9 @@ namespace UploadService.Utilities.Clients
         private FtpWebResponse _ftpResponseDelete = null;
         private Stream _ftpStream = null;
         private int _bufferSize = 2048;
-        
+
         /* Construct Object */
+        //TODO finish refactor
         public FtpClient(string hostIP, string userName, string password, int port)
         {
             _host = hostIP;
@@ -25,10 +26,10 @@ namespace UploadService.Utilities.Clients
             _pass = password;
             _port = port;
         }
-        
+
         /* Upload File */
 
-        public void UploadFile(string remoteFile, string localFFile,bool overwrite)
+        public void UploadFile(string remoteFile, string localFFile, bool overwrite)
         {
             try
             {
@@ -37,66 +38,63 @@ namespace UploadService.Utilities.Clients
                     Delete(remoteFile);
                 }
 
-    
                 /* Create an FTP Request*/
-                _ftpRequest = (FtpWebRequest) FtpWebRequest.Create(_host+remoteFile);
-                
+                _ftpRequest = (FtpWebRequest) FtpWebRequest.Create(_host + remoteFile);
+
                 /* Log in to the FTP Server*/
-                _ftpRequest.Credentials = new NetworkCredential(_user,_pass);
-                
+                _ftpRequest.Credentials = new NetworkCredential(_user, _pass);
+
                 /* When in doubt use these options*/
                 _ftpRequest.UseBinary = true;
                 _ftpRequest.UsePassive = true;
                 _ftpRequest.KeepAlive = true;
-                
+
                 /* Specify the Type of FTP request */
                 _ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
-                
+
                 /* Establish Return communication with the FTP server */
-                _ftpStream = _ftpRequest.GetRequestStream();
-                
-                /* Open a File Stream to Read the File for Upload */
-                FileStream localFileStream  = new FileStream(localFFile, FileMode.OpenOrCreate);
-                
-                /* Buffer for the Downloaded Data */
-                byte[] byteBuffer = new byte[_bufferSize];
-                int bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
-
-              
-
-                /* Upload the File by Sending the Buffered Data Until the Transfer is Complete */
-                try
+                using (_ftpStream = _ftpRequest.GetRequestStream())
                 {
-                    while (bytesSent != 0)
+                    /* Open a File Stream to Read the File for Upload */
+                    using (FileStream localFileStream = new FileStream(localFFile, FileMode.OpenOrCreate))
                     {
-                        _ftpStream.Write(byteBuffer, 0, bytesSent);
-                        bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
-                    }
-                    //Console.WriteLine(localFFile);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                    
-                }
-                
-                /* Resource CleanUp */
+                        /* Buffer for the Downloaded Data */
+                        byte[] byteBuffer = new byte[_bufferSize];
+                        int bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
 
+                        /* Upload the File by Sending the Buffered Data Until the Transfer is Complete */
+                        try
+                        {
+                            while (bytesSent != 0)
+                            {
+                                _ftpStream.Write(byteBuffer, 0, bytesSent);
+                                bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
+                            }
+
+                            //Console.WriteLine(localFFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                
             }
+            finally
+            {
+                _ftpRequest = null;
+            }
+
             return;
-            
         }
 
-       
 
-        public void Delete(string deleteFile)
+        private void Delete(string deleteFile)
         {
-           
             try
             {
                 /* Create an FTP Request */
@@ -110,57 +108,66 @@ namespace UploadService.Utilities.Clients
                 /* Specify the Type of FTP Request */
                 _ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
                 /* Establish Return Communication with the FTP Server */
-                _ftpResponse = (FtpWebResponse) _ftpRequest.GetResponse();
-                /* Resource Cleanup */
-                _ftpResponse.Close();
-                _ftpRequest = null;
+                using (_ftpResponse = (FtpWebResponse) _ftpRequest.GetResponse())
+                {
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                
-                throw;
-                
             }
+            finally
+            {
+                _ftpRequest = null;
+            }
+
             return;
         }
 
         public bool CheckIfFileExists(string filePath)
         {
-            bool exists = false;
-            var request = (FtpWebRequest)WebRequest.Create(_host + filePath);
-            request.Credentials = new NetworkCredential(_user, _pass);
-            request.Method = WebRequestMethods.Ftp.GetFileSize;
-            
+            var exists = false;
+            _ftpRequest = (FtpWebRequest) WebRequest.Create(_host + filePath);
+            _ftpRequest.Credentials = new NetworkCredential(_user, _pass);
+            _ftpRequest.Method = WebRequestMethods.Ftp.GetFileSize;
+
             try
             {
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                exists = true;
+                using (_ftpResponse = (FtpWebResponse) _ftpRequest.GetResponse())
+                {
+                    exists = true;
+                }
             }
             catch (WebException ex)
             {
-                FtpWebResponse response = (FtpWebResponse)ex.Response;
-                if (response.StatusCode ==
-                    FtpStatusCode.ActionNotTakenFileUnavailable)
+                using (_ftpResponse = (FtpWebResponse) ex.Response)
                 {
-                    //Does not exist
+                    if (_ftpResponse.StatusCode ==
+                        FtpStatusCode.ActionNotTakenFileUnavailable)
+                    {
+                        //Does not exist
+                    }
                 }
+            }
+            finally
+            {
+                _ftpRequest = null;
             }
 
             return exists;
         }
-        
+
         public bool DirectoryExists(string directory)
         {
             /* Create an FTP Request */
-            _ftpRequest = (FtpWebRequest)FtpWebRequest.Create(_host  + directory);
+            _ftpRequest = (FtpWebRequest) FtpWebRequest.Create(_host + directory);
             /* Log in to the FTP Server with the User Name and Password Provided */
             _ftpRequest.Credentials = new NetworkCredential(_user, _pass);
             /* Specify the Type of FTP Request */
             _ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
             try
             {
-                using (FtpWebResponse response = (FtpWebResponse)_ftpRequest.GetResponse())
+                using (_ftpResponse = (FtpWebResponse) _ftpRequest.GetResponse())
                 {
                     return true;
                 }
@@ -169,7 +176,6 @@ namespace UploadService.Utilities.Clients
             {
                 return false;
             }
-
             /* Resource Cleanup */
             finally
             {
