@@ -65,7 +65,7 @@ namespace UploadService
         {
          //  _periodicalStrategy.Upload(_periodicalUploads);
           // _timeStrategy.Upload(_timeSpecificUploads);
-          // _onChangeStrategy.Upload(_onChangeUploads);
+           _onChangeStrategy.Upload(_onChangeUploads);
           // _onCreateStrategy.Upload(_onCreateUploads);
         }
     }

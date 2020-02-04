@@ -5,9 +5,9 @@ namespace UploadServiceDatabase.Context
 {
     public class UploadServiceContext : DbContext, IUploadServiceContext
     {
-        //TODO to conf
-        protected override void  OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlite("Data Source=/home/katarina/RiderProjects/UploadService/UploadServiceDatabase/Database/UploadServiceDatabaseNew.db");
+        
+        
+        public UploadServiceContext(DbContextOptions<UploadServiceContext> options) : base(options){}
         
         public DbSet<FileDTO> Files { get; set; }
     }

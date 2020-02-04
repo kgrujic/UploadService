@@ -1,6 +1,8 @@
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using UploadServiceDatabase.Context;
 using UploadServiceDatabase.DTOs;
 
@@ -8,26 +10,28 @@ namespace UploadServiceDatabase.Repositories
 {
     public class UploadServiceRepository : IUploadServiceRepository
     {
-       
-        public UploadServiceRepository()
+        //TODO dependency injection problem
+        private UploadServiceContext _context;
+        public UploadServiceRepository(UploadServiceContext context)
         {
-           
+            _context = context;
+
         }
 
         public FileDTO GetFileByPath(string path)
         {
-            using (var context = new UploadServiceContext())
+            using (_context)
             {
-                return context.Files.Find(path);
+                return _context.Files.Find(path);
             }
             
         } 
         
         public bool FileExistInDatabase(string path)
         {
-            using (var context = new UploadServiceContext())
+            using (_context)
             {
-                var b = context.Files.Any(f => f.FilePath == path);
+                var b = _context.Files.Any(f => f.FilePath == path);
                 return b;
                 
             }
@@ -36,50 +40,47 @@ namespace UploadServiceDatabase.Repositories
 
         public void InsertFile(FileDTO file)
         {
-            using (var context = new UploadServiceContext())
+            using (_context)
             {
-                context.Files.Add(file);
-                context.SaveChanges();
+                _context.Files.Add(file);
+                _context.SaveChanges();
             }
         }
 
         public void DeleteFile(string path)
         {
-            using (var context = new UploadServiceContext())
+            using (_context)
             {
-                FileDTO file = context.Files.Find(path);
-                context.Files.Remove(file);
-                context.SaveChanges();
+                FileDTO file = _context.Files.Find(path);
+                _context.Files.Remove(file);
+                _context.SaveChanges();
             }
         }
 
         public  void UpdateFile(FileDTO file)
         {
-            using (var context = new UploadServiceContext())
+            using (_context)
             {
-                context.Files.Update(file);
-                context.SaveChanges();
+                _context.Files.Update(file);
+                _context.SaveChanges();
             }
         }
-        
-        public void Save()        
+
+        public void Save()
         {
-            using (var context = new UploadServiceContext())
-            {
-                context.SaveChanges();      
-            }      
-           
-        }        
-    
+            throw new NotImplementedException();
+        }
+
+
         private bool disposed = false;        
     
         protected virtual void Dispose(bool disposing)        
-        {           using (var context = new UploadServiceContext()){       
+        {           using (_context){       
             if (!this.disposed)            
             {                
                 if (disposing)                
                 {                    
-                    context.Dispose();                
+                    _context.Dispose();                
                 }
             }            
             this.disposed = true;   

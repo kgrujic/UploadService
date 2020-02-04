@@ -1,7 +1,7 @@
 namespace UploadService.Configurations.ServerConfigurations.Implementations
 {
     /// <summary>
-    /// Ovo je objasnjenje
+    /// 
     /// </summary>
     public class FtpServerConfiguration : IServerConfiguration
     {
