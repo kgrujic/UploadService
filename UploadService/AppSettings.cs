@@ -13,6 +13,6 @@ namespace UploadService
         public List<UploadOnChange> OnChangeUploads { get; set; }
         
         public List<UploadOnCreate> OnCreateUploads { get; set; }
-        public FTPServerConfiguration ftpServerConfiguration { get; set; }
+        public FtpServerConfiguration FtpServerConfiguration { get; set; }
     }
 }

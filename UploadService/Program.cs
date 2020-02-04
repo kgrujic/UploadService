@@ -30,8 +30,8 @@ namespace UploadService
                 {
                     services.AddHostedService<Worker>();
                     services.Configure<AppSettings>(hostContext.Configuration.GetSection("AppSettings"));
-                    
-                    services.AddSingleton<IIOHelper, IOHelper>();
+                    // TODO refactor
+                    services.AddSingleton<IIoHelper, IoHelper>();
                     services.AddSingleton<IHashHelper, HashHelper>();
                     services.AddSingleton<IUploadServiceRepository, UploadServiceRepository>();
                     
@@ -54,7 +54,7 @@ namespace UploadService
                         u.GetRequiredService<IUploadServiceRepository>(),
                         u.GetRequiredService<IHashHelper>()
                     ));
-                    services.AddSingleton<IArchive>(u => new ArchiveFiles(u.GetRequiredService<IIOHelper>()
+                    services.AddSingleton<IArchive>(u => new ArchiveFiles(u.GetRequiredService<IIoHelper>()
                     ));
 
                     services.AddSingleton<IUploadStrategy<PeriodicalUpload>, PeriodicalStrategy>();   

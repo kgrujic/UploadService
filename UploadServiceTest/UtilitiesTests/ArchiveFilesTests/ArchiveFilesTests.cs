@@ -12,14 +12,14 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
     public class ArchiveFilesTests
     {
         private IArchive _archive;
-        private Mock<IIOHelper> ioHelperMock;
+        private Mock<IIoHelper> ioHelperMock;
 
         [SetUp]
         public void Setup()
         {
            
             var mocks = new MockRepository(MockBehavior.Default);
-            ioHelperMock = mocks.Create<IIOHelper>();
+            ioHelperMock = mocks.Create<IIoHelper>();
             _archive = new ArchiveFiles(ioHelperMock.Object);
         }
 
@@ -31,14 +31,14 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
                 var dummySourcePath = "/path/source/my.txt";
                 var dummyDestinationPath = "/path/dest/my.txt";
 
-                mock.Mock<IIOHelper>()
+                mock.Mock<IIoHelper>()
                     .Setup(x => x.CopyFile(dummySourcePath, dummyDestinationPath));
                 
                 var cls = mock.Create<ArchiveFiles>();
                 
                 cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
                 
-                mock.Mock<IIOHelper>()
+                mock.Mock<IIoHelper>()
                     .Verify(X => X.CopyFile(dummySourcePath,dummyDestinationPath), Times.Exactly(1));
 
             }
@@ -53,7 +53,7 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
                 var dummySourcePath = "/path/source/my.txt";
                 string dummyDestinationPath = null;
 
-                mock.Mock<IIOHelper>()
+                mock.Mock<IIoHelper>()
                     .Setup(x => x.CopyFile(dummySourcePath, dummyDestinationPath)).Throws<DirectoryNotFoundException>();
                 
                 

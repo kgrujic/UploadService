@@ -43,7 +43,7 @@ namespace UploadService
         private IUploadStrategy<UploadOnCreate> _onCreateStrategy;
 
 
-        public Worker(ILogger<Worker> logger, IOptions<AppSettings> settings, IIOHelper ioHelper,IUploadServiceRepository repository, IHashHelper hashHelper,IUpload upload, IArchive archive, IClineable clean,
+        public Worker(ILogger<Worker> logger, IOptions<AppSettings> settings, IIoHelper ioHelper,IUploadServiceRepository repository, IHashHelper hashHelper,IUpload upload, IArchive archive, IClineable clean,
             IUploadStrategy<PeriodicalUpload> periodicalStrategy, IUploadStrategy<TimeSpecificUpload> timeStrategy, IUploadStrategy<UploadOnChange> onChangeStrategy, IUploadStrategy<UploadOnCreate> onCreateStrategy)
         {
             _periodicalUploads = settings.Value.PeriodicalUploads;
@@ -58,58 +58,15 @@ namespace UploadService
             
             _logger = logger;
         }
-
-        public override Task StartAsync(CancellationToken cancellationToken)
-        {
-            _logger.LogInformation($"Worker started at: {DateTime.Now}");
-
-           // TODO extract to strategy
-            /*HandleOnStartOnChange(OnChangeUploads); 
-            HandleOnStart(PeriodicalUploads);
-            HandleOnStart(TimeSpecificUploads);
-            HandleOnStart(OnCreateUploads);*/
-
-            return base.StartAsync(cancellationToken);
-        }
-
-        /*private void HandleOnStart(IEnumerable<IUploadTypeConfiguration> list)
-        {
-            foreach (var item in list.ToList())
-            {
-                foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask,
-                    SearchOption.AllDirectories))
-                {
-                    var dto = new UploadFileBackupDTO
-                    {
-                        archiveFolder = item.ArchiveFolder,
-                        cleanUpDays = item.CleanUpPeriodDays,
-                        fileMask = item.FileMask,
-                        localFilePath = filePath,
-                        remoteFolder = item.RemoteFolder
-                    };
-
-                    _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
-                    _clean.CleanOutdatedFilesOnDays(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
-                    _archive.SaveFileToArchiveFolder(dto.localFilePath,
-                        Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
-                }
-            }
-        }
-
-        private void HandleOnStartOnChange(IEnumerable<IUploadTypeConfiguration> list)
-        {
-            foreach (var file in list.ToList().Cast<UploadOnChange>())
-            {
-                _upload.UploadFile(file.LocalFilePath, file.RemoteFolder);
-            }
-        }*/
+        
+        
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-           //_periodicalStrategy.Upload(_periodicalUploads);
+         //  _periodicalStrategy.Upload(_periodicalUploads);
           // _timeStrategy.Upload(_timeSpecificUploads);
-           _onChangeStrategy.Upload(_onChangeUploads);
-           //_onCreateStrategy.Upload(_onCreateUploads);
+          // _onChangeStrategy.Upload(_onChangeUploads);
+          // _onCreateStrategy.Upload(_onCreateUploads);
         }
     }
 }

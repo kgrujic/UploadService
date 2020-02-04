@@ -6,9 +6,9 @@ namespace UploadService.Utilities.ArchiveFiles
 {
     public class ArchiveFiles : IArchive
     {
-        private IIOHelper _ioHelper;
+        private IIoHelper _ioHelper;
 
-        public ArchiveFiles(IIOHelper ioHelper)
+        public ArchiveFiles(IIoHelper ioHelper)
         {
             _ioHelper = ioHelper;
         }
@@ -17,6 +17,7 @@ namespace UploadService.Utilities.ArchiveFiles
         {
             try
             {
+                _ioHelper.CreateDirectoryIfNotExist(Path.GetDirectoryName(backupFilePath));
                 _ioHelper.CopyFile(sourceFilePath,backupFilePath);
                 _ioHelper.DeleteFile(sourceFilePath);
             }

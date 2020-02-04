@@ -5,23 +5,17 @@ using System.Linq;
 namespace UploadService.Utilities.IO_Helpers
 {
     // TODO create interface
-    public class IOHelper : IIOHelper
+    public class IoHelper : IIoHelper
     {
-
         public void CreateDirectoryIfNotExist(string folderPath)
         {
-            // Check if exists and create
             Directory.CreateDirectory(folderPath);
         }
 
-        public bool FileExists(string fileName)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void CopyFile(string sourceFilePath, string backupFilePath)
+        public void CopyFile(string sourceFilePath, string destinationFilePath)
         {
-            File.Copy(sourceFilePath, backupFilePath, true);
+            File.Copy(sourceFilePath, destinationFilePath, true);
         }
 
         public void DeleteFile(string filePath)

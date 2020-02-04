@@ -1,11 +1,11 @@
 namespace UploadService.DTOs
 {
-    public class UploadFileBackupDTO
+    public class UploadFileBackupDto
     {
-        public string localFilePath { get; set; }
-        public string remoteFolder { get; set; }
-        public string archiveFolder { get; set; }
-        public string fileMask { get; set; }
-        public int cleanUpDays { get; set; }
+        public string LocalFilePath { get; set; }
+        public string RemoteFolder { get; set; }
+        public string ArchiveFolder { get; set; }
+        public string FileMask { get; set; }
+        public int CleanUpDays { get; set; }
     }
 }

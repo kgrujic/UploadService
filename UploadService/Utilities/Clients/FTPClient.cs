@@ -17,11 +17,10 @@ namespace UploadService.Utilities.Clients
         private Stream _ftpStream = null;
         private int _bufferSize = 2048;
 
-        /* Construct Object */
-        //TODO finish refactor
-        public FtpClient(string hostIP, string userName, string password, int port)
+     
+        public FtpClient(string hostIp, string userName, string password, int port)
         {
-            _host = hostIP;
+            _host = hostIp;
             _user = userName;
             _pass = password;
             _port = port;

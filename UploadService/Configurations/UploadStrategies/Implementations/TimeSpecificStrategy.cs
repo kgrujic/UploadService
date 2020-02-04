@@ -24,9 +24,17 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             _archive = archive;
             _clean = clean;
         }
-
+        public void StartUpUpload(IEnumerable<TimeSpecificUpload> list)
+        {
+            foreach (var item in list)
+            {
+                UploadFolder(item);
+            }
+        }
         public void Upload(IEnumerable<TimeSpecificUpload> timeSpecificlUploads)
         {
+            StartUpUpload(timeSpecificlUploads);
+            
             List<Timer> timerMatrix = new List<Timer>();
 
             foreach (var item in timeSpecificlUploads)
@@ -48,42 +56,46 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
                 timer.Elapsed += (sender, e) =>
                 {
-                   
                     OnTimedEvent(item, scheduledTime, timer);
                 };
             }
           
         }
 
+       
+
         private void OnTimedEvent(TimeSpecificUpload item, DateTime scheduledTime, Timer timer)
         {
-            /*double tillNextInterval = scheduledTime.Subtract(DateTime.Now).TotalSeconds * 1000;
-            if (tillNextInterval < 0) tillNextInterval += new TimeSpan(24, 0, 0).TotalSeconds * 1000;*/
-           
-
-            Console.WriteLine("In timer" + DateTime.Now);
-            var remoteFolder = item.RemoteFolder;
-            var fileMask = item.FileMask;
-            var archiveFolder = item.ArchiveFolder;
-            var cleanUpDays = item.CleanUpPeriodDays;
-            var localFolderPath = item.LocalFolderPath;
-
-            // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
-
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
-            {
-                var dto = new UploadFileBackupDTO
-                {
-                    archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
-                    fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
-                };
-                _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
-                _clean.CleanOutdatedFilesOnDays(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
-                _archive.SaveFileToArchiveFolder(dto.localFilePath,
-                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
-            }
+            UploadFolder(item);
             timer.Interval = TimeSpan.FromHours(24).Milliseconds;
           
+        }
+        
+        private void UploadFolder(TimeSpecificUpload item)
+        {
+            foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask, SearchOption.AllDirectories))
+            {
+                var dto  = CreateUploadFileDto(item, filePath);
+                
+                _upload.UploadFile(dto.LocalFilePath, dto.RemoteFolder);
+                _clean.CleanOutdatedFilesOnDays(dto.ArchiveFolder, dto.FileMask, dto.CleanUpDays);
+                _archive.SaveFileToArchiveFolder(dto.LocalFilePath,
+                    Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
+            }
+        }
+
+        private UploadFileBackupDto CreateUploadFileDto(TimeSpecificUpload item, string filePath)
+        {
+            var dto = new UploadFileBackupDto
+            {
+                ArchiveFolder = item.ArchiveFolder,
+                CleanUpDays = item.CleanUpPeriodDays,
+                FileMask = item.FileMask,
+                LocalFilePath = filePath,
+                RemoteFolder = item.RemoteFolder
+            };
+
+            return dto;
         }
     }
 }

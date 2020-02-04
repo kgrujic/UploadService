@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using UploadService.DTOs;
@@ -42,8 +43,8 @@ namespace UploadService.Utilities.HashHelpers
 
         public bool HashMatching(byte[] hashFirst, byte[] hashSecond)
         {
-            //TODO equals
-            if (BitConverter.ToString(hashFirst) == BitConverter.ToString(hashSecond))
+
+            if (hashFirst.SequenceEqual(hashSecond))
             {
                 return true;
             }

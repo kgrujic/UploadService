@@ -19,9 +19,8 @@ namespace UploadService.Utilities.UploadFiles
             _repository = repository;
             _hashHelper = hashHelper;
         }
-
-        //TODO check archive and directory on FTP
-
+        
+        
         public async Task UploadFile(string localFilePath, string remoteFolder)
         {
             var remoteFilePath = Path.Combine("/home/katarina/", remoteFolder, Path.GetFileName(localFilePath));

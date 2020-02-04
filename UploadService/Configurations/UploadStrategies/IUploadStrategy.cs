@@ -8,5 +8,7 @@ namespace UploadService.Configurations.UploadStrategies
     public interface IUploadStrategy<T> where T : IUploadTypeConfiguration
     {
         public void Upload(IEnumerable<T> list);
+
+        public void StartUpUpload(IEnumerable<T> list);
     }
 }

@@ -3,13 +3,13 @@ namespace UploadService.Configurations.ServerConfigurations.Implementations
     /// <summary>
     /// Ovo je objasnjenje
     /// </summary>
-    public class FTPServerConfiguration : IServerConfiguration
+    public class FtpServerConfiguration : IServerConfiguration
     {
-        public FTPServerConfiguration()
+        public FtpServerConfiguration()
         {
         }
 
-        public FTPServerConfiguration(string hostAddress, string username, string password)
+        public FtpServerConfiguration(string hostAddress, string username, string password)
         {
             HostAddress = hostAddress;
             Username = username;
@@ -20,7 +20,7 @@ namespace UploadService.Configurations.ServerConfigurations.Implementations
         public string Username { get; set; }
         public string Password { get; set; }
         public int PortNumber { get; set; }
-        public int MAX_FTP_SESSIONS { get; set; }
-        public int IDLE_SESSION_TIMEOUT { get; set; }
+        public int MaxFtpSessions { get; set; }
+        public int IdleSessionTimeout { get; set; }
     }
 }

@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Timers;
-using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
 using UploadService.Utilities.ArchiveFiles;
@@ -30,75 +28,66 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
         public void Upload(IEnumerable<PeriodicalUpload> periodicalUploads)
         {
-           // List<Timer> timerMatrix = new List<Timer>();
-
-           foreach (var item in periodicalUploads)
+            StartUpUpload(periodicalUploads);
+            
+            foreach (var item in periodicalUploads)
             {
-                var timer = new System.Timers.Timer()
+                var timer = new Timer
                 {
                     Enabled = true,
                     Interval = item.Interval,
                     AutoReset = true
                 };
-
-               // timerMatrix.Add(timer);
+                
 
                 timer.Elapsed += (sender, e) =>  OnTimedEvent(item);
+            }
+        }
+
+        public void StartUpUpload(IEnumerable<PeriodicalUpload> list)
+        {
+            foreach (var item in list)
+            {
+                UploadFolder(item);
             }
         }
 
 
         private void OnTimedEvent(PeriodicalUpload item)
         {
-            /*var remoteFolder = item.RemoteFolder;
-            var fileMask = item.FileMask;
-            var archiveFolder = item.ArchiveFolder;
-            var cleanUpDays = item.CleanUpPeriodDays;
-            var localFolderPath = item.LocalFolderPath;
-
-            // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
-
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
-            {
-                var dto = new UploadFileBackupDTO
-                {
-                    archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
-                    fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
-                };
-                
-                _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
-                _clean.CleanOutdatedFilesOnDays(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
-                _archive.SaveFileToArchiveFolder(dto.localFilePath,
-                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
-            }*/
             
-            HandleMyEvent(item);
+            UploadFolder(item);
+            
         }
 
-        public void HandleMyEvent(PeriodicalUpload item)
+        private void UploadFolder(PeriodicalUpload item)
         {
-            var remoteFolder = item.RemoteFolder;
-            var fileMask = item.FileMask;
-            var archiveFolder = item.ArchiveFolder;
-            var cleanUpDays = item.CleanUpPeriodDays;
-            var localFolderPath = item.LocalFolderPath;
-
-            // _ioHelper.CreateDirectoryIfNotExist(archiveFolder);
-          
-            foreach (string filePath in Directory.EnumerateFiles(localFolderPath, fileMask, SearchOption.AllDirectories))
+            foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask, SearchOption.AllDirectories))
             {
-                var dto = new UploadFileBackupDTO
-                {
-                    archiveFolder = archiveFolder, cleanUpDays = cleanUpDays,
-                    fileMask = fileMask, localFilePath = filePath, remoteFolder = remoteFolder
-                };
+                var dto  = CreateUploadFileDto(item, filePath);
                 
-                _upload.UploadFile(dto.localFilePath, dto.remoteFolder);
-                _clean.CleanOutdatedFilesOnDays(dto.archiveFolder, dto.fileMask, dto.cleanUpDays);
-              
-                _archive.SaveFileToArchiveFolder(dto.localFilePath,
-                    Path.Combine(dto.archiveFolder, Path.GetFileName(dto.localFilePath)));
+                _upload.UploadFile(dto.LocalFilePath, dto.RemoteFolder);
+                _clean.CleanOutdatedFilesOnDays(dto.ArchiveFolder, dto.FileMask, dto.CleanUpDays);
+                _archive.SaveFileToArchiveFolder(dto.LocalFilePath,
+                    Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
             }
         }
+
+        private UploadFileBackupDto CreateUploadFileDto(PeriodicalUpload item, string filePath)
+        {
+            var dto = new UploadFileBackupDto
+            {
+                ArchiveFolder = item.ArchiveFolder,
+                CleanUpDays = item.CleanUpPeriodDays,
+                FileMask = item.FileMask,
+                LocalFilePath = filePath,
+                RemoteFolder = item.RemoteFolder
+            };
+
+            return dto;
+        }
+        
+        
     }
+    
 }

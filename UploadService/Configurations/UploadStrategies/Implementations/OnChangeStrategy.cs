@@ -14,31 +14,41 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
     {
         private IUpload _upload;
 
-        private List<MyFileSystemWatcher> watchers;
+        private List<MyFileSystemWatcher> _watchers;
 
         public OnChangeStrategy(IUpload upload)
         {
             _upload = upload;
         }
+        
+        public void StartUpUpload(IEnumerable<UploadOnChange> list)
+        {
+            foreach (var file in list)
+            {
+                _upload.UploadFile(file.LocalFilePath, file.RemoteFolder);
+            }
+        }
 
 
         public void Upload(IEnumerable<UploadOnChange> onChangeUploads)
         {
-            watchers = new List<MyFileSystemWatcher>();
+            StartUpUpload(onChangeUploads);
+            
+            _watchers = new List<MyFileSystemWatcher>();
 
             foreach (var file in onChangeUploads)
             {
                 MyFileSystemWatcher watcher = CreateWatcher(file);
-                watchers.Add(watcher);
+                _watchers.Add(watcher);
             }
 
             AddEventHandlers();
         }
-
+        
 
         void AddEventHandlers()
         {
-            foreach (var w in watchers)
+            foreach (var w in _watchers)
             {
                 w.Renamed += async (sender, e) =>
                 {
@@ -69,5 +79,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             await _upload.UploadFile(localFilePath, remoteFolder);
         }
+        
     }
 }
