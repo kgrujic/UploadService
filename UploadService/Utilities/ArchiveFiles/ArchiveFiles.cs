@@ -4,6 +4,10 @@ using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService.Utilities.ArchiveFiles
 {
+    /// <summary>
+    /// ArchiveFiles class handle archiving of files
+    /// Implements IArchive interface
+    /// </summary>
     public class ArchiveFiles : IArchive
     {
         private IIoHelper _ioHelper;
@@ -13,7 +17,7 @@ namespace UploadService.Utilities.ArchiveFiles
             _ioHelper = ioHelper;
         }
         
-        public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
+        public void MoveFileToArchiveFolder(string sourceFilePath, string backupFilePath)
         {
             try
             {
@@ -21,10 +25,10 @@ namespace UploadService.Utilities.ArchiveFiles
                 _ioHelper.CopyFile(sourceFilePath,backupFilePath);
                 _ioHelper.DeleteFile(sourceFilePath);
             }
-            catch(DirectoryNotFoundException e)
+            catch(IOException e)
             {
-                //Console.WriteLine($"Exception occured");
-                //throw;
+                Console.WriteLine($"Exception occured" + e.Message);
+             
             }
         }
     }

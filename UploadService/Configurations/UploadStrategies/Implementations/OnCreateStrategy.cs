@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
 using UploadService.Utilities;
@@ -14,6 +10,10 @@ using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
+    /// <summary>
+    /// OnChangeStrategy Class Handle uploading files when Create event happened
+    /// Implements 'IUploadStrategy'<'UploadOnCreate'>'
+    /// </summary>
     public class OnCreateStrategy : IUploadStrategy<UploadOnCreate>
     {
         private IUpload _upload;
@@ -21,7 +21,11 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private IClineable _clean;
 
         private List<MyFileSystemWatcher> _watchers;
-
+        
+        /// <summary>
+        /// OnCreateStrategy constructor
+        /// </summary>
+        /// <param name="upload"></param>
         public OnCreateStrategy(IUpload upload, IArchive archive, IClineable clean)
         {
            
@@ -29,7 +33,10 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             _archive = archive;
             _clean = clean;
         }
-        
+        /// <summary>
+        /// StartUpUpload method uploads changes that happened in watched folder when service was inactive
+        /// </summary>
+        /// <param name="list">List of UploadOnCreate objects</param>
         public void StartUpUpload(IEnumerable<UploadOnCreate> list)
         {
             foreach (var item in list)
@@ -39,6 +46,10 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         }
 
 
+        /// <summary>
+        /// Upload method uploads changes in real time when service is active
+        /// </summary>
+        /// <param name="list">List of UploadOnCreate objects</param>
         public void Upload(IEnumerable<UploadOnCreate> onCreateUploads)
         {
             StartUpUpload(onCreateUploads);
@@ -54,7 +65,9 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             AddEventHandlers();
         }
 
-       
+        /// <summary>
+        /// AddEventHandlers method adds event handlers for watchers
+        /// </summary>
         void AddEventHandlers()
         {
             foreach (var w in _watchers)
@@ -63,6 +76,13 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             }
         }
 
+        /// <summary>
+        /// OnCreateEvent method calls OnCreateEvent
+        /// </summary>
+        /// <param name="sender">object</param>
+        /// <param name="e">FileSystemEventArgs</param>
+        /// <param name="w">MyFileSystemWatcher</param>
+        /// <returns></returns>
         private async Task OnCreateHandler(object sender, FileSystemEventArgs e, MyFileSystemWatcher w)
         {
           
@@ -70,7 +90,12 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
               
             await OnCreateEvent(CreateUploadFileDto(w,localFilePath));
         }
-
+        
+        /// <summary>
+        /// CreateWatcher method creates new instance of MyFileSystemWatcher class 
+        /// </summary>
+        /// <param name="file">UploadOnCreate object</param>
+        /// <returns></returns>
         private MyFileSystemWatcher CreateWatcher(UploadOnCreate item)
         {
             var watcher = new MyFileSystemWatcher
@@ -89,13 +114,24 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             return watcher;
         }
 
+        /// <summary>
+        /// OnCreateEvent calls methods for upload, clean outdated files and arhive from services
+        /// </summary>
+        /// <param name="dto">UploadFileBackupDto object</param>
+        /// <returns></returns>
         private async Task OnCreateEvent(UploadFileBackupDto dto)
         {
             await _upload.UploadFile(dto.LocalFilePath, dto.RemoteFolder);
             _clean.CleanOutdatedFilesOnDays(dto.ArchiveFolder,dto.FileMask, dto.CleanUpDays);
-            _archive.SaveFileToArchiveFolder(dto.LocalFilePath,  Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
+            _archive.MoveFileToArchiveFolder(dto.LocalFilePath,  Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
         }
         
+        /// <summary>
+        /// CreateUploadFileDto creates instance of UploadFileBackupDto
+        /// </summary>
+        /// <param name="item">MyFileSystemWatcher object</param>
+        /// <param name="filePath">string</param>
+        /// <returns>UploadFileBackupDto object</returns>
         private UploadFileBackupDto CreateUploadFileDto(MyFileSystemWatcher item, string filePath)
         {
             var dto = new UploadFileBackupDto
@@ -109,6 +145,14 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
             return dto;
         }
+        
+        /// <summary>
+        /// CreateUploadFileDto creates instance of UploadFileBackupDto.
+        /// Overloaded method
+        /// </summary>
+        /// <param name="item">UploadOnCreate object</param>
+        /// <param name="filePath">string</param>
+        /// <returns>UploadFileBackupDto object</returns>
         private UploadFileBackupDto CreateUploadFileDto(UploadOnCreate item, string filePath)
         {
             var dto = new UploadFileBackupDto
@@ -123,16 +167,18 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             return dto;
         }
         
-        private void UploadFolder(UploadOnCreate item)
+        /// <summary>
+        /// UploadFolder method uploads all files from from folder
+        /// </summary>
+        /// <param name="item">UploadOnCreate object</param>
+        private async void UploadFolder(UploadOnCreate item)
         {
             foreach (string filePath in Directory.EnumerateFiles(item.LocalFolderPath, item.FileMask, SearchOption.AllDirectories))
             {
                 var dto  = CreateUploadFileDto(item, filePath);
-                
-                _upload.UploadFile(dto.LocalFilePath, dto.RemoteFolder);
-                _clean.CleanOutdatedFilesOnDays(dto.ArchiveFolder, dto.FileMask, dto.CleanUpDays);
-                _archive.SaveFileToArchiveFolder(dto.LocalFilePath,
-                    Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
+
+               await OnCreateEvent(dto);
+               
             }
         }
 

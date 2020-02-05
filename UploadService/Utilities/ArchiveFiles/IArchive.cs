@@ -1,7 +1,10 @@
 namespace UploadService.Utilities.ArchiveFiles
 {
+    /// <summary>
+    /// Archive service interface
+    /// </summary>
     public interface IArchive
     {
-        public void SaveFileToArchiveFolder(string sourceFilePath, string backupFilePath);
+        public void MoveFileToArchiveFolder(string sourceFilePath, string backupFilePath);
     }
 }

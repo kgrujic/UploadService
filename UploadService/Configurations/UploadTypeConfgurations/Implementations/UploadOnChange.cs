@@ -1,5 +1,9 @@
 namespace UploadService.Configurations.UploadTypeConfgurations.Implementations
 {
+    /// <summary>
+    /// Upload On Change type
+    /// Implements IUploadTypeConfiguration
+    /// </summary>
     public class UploadOnChange : IUploadTypeConfiguration
     {
         public string RemoteFolder { get; set; }

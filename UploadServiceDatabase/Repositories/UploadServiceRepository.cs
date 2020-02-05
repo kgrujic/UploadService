@@ -1,9 +1,4 @@
-using System;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.DependencyInjection;
-using UploadServiceDatabase.Context;
 using UploadServiceDatabase.Context.ContextFactory;
 using UploadServiceDatabase.DTOs;
 
@@ -11,7 +6,7 @@ namespace UploadServiceDatabase.Repositories
 {
     public class UploadServiceRepository : IUploadServiceRepository
     {
-        //TODO dependency injection problem
+        
         private IContextFactory _contextFactory;
         public UploadServiceRepository(IContextFactory contextFactory)
         {

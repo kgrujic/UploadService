@@ -1,26 +1,35 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Utilities;
 using UploadService.Utilities.UploadFiles;
 
 namespace UploadService.Configurations.UploadStrategies.Implementations
 {
+    /// <summary>
+    /// OnChangeStrategy Class Handle uploading files when Change event happened
+    /// Implements 'IUploadStrategy'<'UploadOnChange'>'
+    /// </summary>
     public class OnChangeStrategy : IUploadStrategy<UploadOnChange>
     {
         private IUpload _upload;
 
         private List<MyFileSystemWatcher> _watchers;
 
+        /// <summary>
+        /// OnChangeStrategy constructor
+        /// </summary>
+        /// <param name="upload"></param>
         public OnChangeStrategy(IUpload upload)
         {
             _upload = upload;
         }
-        
+
+        /// <summary>
+        /// StartUpUpload method uploads changes that happened when service was inactive
+        /// </summary>
+        /// <param name="list">List of UploadOnChange objects</param>
         public void StartUpUpload(IEnumerable<UploadOnChange> list)
         {
             foreach (var file in list)
@@ -30,10 +39,14 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         }
 
 
+        /// <summary>
+        /// Upload method uploads changes in real time when service is active
+        /// </summary>
+        /// <param name="list">List of UploadOnChange objects</param>
         public void Upload(IEnumerable<UploadOnChange> onChangeUploads)
         {
             StartUpUpload(onChangeUploads);
-            
+
             _watchers = new List<MyFileSystemWatcher>();
 
             foreach (var file in onChangeUploads)
@@ -44,8 +57,11 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
             AddEventHandlers();
         }
-        
 
+
+        /// <summary>
+        /// AddEventHandlers method adds event handlers for watchers
+        /// </summary>
         void AddEventHandlers()
         {
             foreach (var w in _watchers)
@@ -59,6 +75,11 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             }
         }
 
+        /// <summary>
+        /// CreateWatcher method creates new instance of MyFileSystemWatcher class 
+        /// </summary>
+        /// <param name="file">UploadOnChange object</param>
+        /// <returns></returns>
         public MyFileSystemWatcher CreateWatcher(UploadOnChange file)
         {
             var watcher = new MyFileSystemWatcher()
@@ -75,10 +96,15 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         }
 
 
+        /// <summary>
+        /// OnChangeEvent method is calling UploadFile method from UploadFiles service
+        /// </summary>
+        /// <param name="localFilePath"></param>
+        /// <param name="remoteFolder"></param>
+        /// <returns>UploadFileBackupDto object</returns>
         private async Task OnChangeEvent(string localFilePath, string remoteFolder)
         {
             await _upload.UploadFile(localFilePath, remoteFolder);
         }
-        
     }
 }

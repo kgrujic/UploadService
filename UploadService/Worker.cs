@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -9,18 +6,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using UploadService.Configurations.ServerConfigurations;
 using UploadService.Configurations.UploadStrategies;
-using UploadService.Configurations.UploadStrategies.Implementations;
-using UploadService.Configurations.UploadTypeConfgurations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
-using UploadService.DTOs;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.CleaningOutdatedFiles;
-using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
 using UploadServiceDatabase.Repositories;
-using Timer = System.Timers.Timer;
 
 namespace UploadService
 {
@@ -66,7 +58,7 @@ namespace UploadService
          // _periodicalStrategy.Upload(_periodicalUploads);
           // _timeStrategy.Upload(_timeSpecificUploads);
           // _onChangeStrategy.Upload(_onChangeUploads);
-          // _onCreateStrategy.Upload(_onCreateUploads);
+           _onCreateStrategy.Upload(_onCreateUploads);
         }
     }
 }

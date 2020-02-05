@@ -1,5 +1,8 @@
 namespace UploadService.DTOs
 {
+    /// <summary>
+    /// Helper dto for uploading with backup handling
+    /// </summary>
     public class UploadFileBackupDto
     {
         public string LocalFilePath { get; set; }

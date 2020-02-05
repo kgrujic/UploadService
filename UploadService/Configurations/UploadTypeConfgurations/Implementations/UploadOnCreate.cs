@@ -1,5 +1,9 @@
 namespace UploadService.Configurations.UploadTypeConfgurations.Implementations
 {
+    /// <summary>
+    /// Upload On Create type
+    /// Implements IUploadTypeConfiguration
+    /// </summary>
     public class UploadOnCreate : IUploadTypeConfiguration
     {
         public string LocalFolderPath { get; set; }

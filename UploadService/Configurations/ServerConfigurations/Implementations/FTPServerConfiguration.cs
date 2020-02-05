@@ -7,6 +7,9 @@ namespace UploadService.Configurations.ServerConfigurations.Implementations
     /// </summary>
     public class FtpServerConfiguration : IServerConfiguration
     {
+        /// <summary>
+        /// Default constructor for FtpServerConfiguration
+        /// </summary>
         public FtpServerConfiguration()
         {
         }
@@ -26,8 +29,7 @@ namespace UploadService.Configurations.ServerConfigurations.Implementations
             PortNumber = portNumber;
         }
 
-        
-      
+
         public string HostAddress { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }

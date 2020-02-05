@@ -36,7 +36,7 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
                 
                 var cls = mock.Create<ArchiveFiles>();
                 
-                cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
+                cls.MoveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
                 
                 mock.Mock<IIoHelper>()
                     .Verify(X => X.CopyFile(dummySourcePath,dummyDestinationPath), Times.Exactly(1));
@@ -58,7 +58,7 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
                 
                 
                 var cls = mock.Create<ArchiveFiles>();
-                cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
+                cls.MoveFileToArchiveFolder(dummySourcePath,dummyDestinationPath);
               
                //Assert.Catch<DirectoryNotFoundException>(() =>  cls.SaveFileToArchiveFolder(dummySourcePath,dummyDestinationPath));
                //mock.Mock<IIOHelper>()

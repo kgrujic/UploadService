@@ -1,5 +1,8 @@
 namespace UploadService.Configurations.ServerConfigurations
 {
+    /// <summary>
+    /// IServerConfiguration Interface
+    /// </summary>
     public interface IServerConfiguration
     {
         public string HostAddress { get; set; }

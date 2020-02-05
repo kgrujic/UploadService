@@ -43,13 +43,7 @@ namespace UploadService.Utilities.HashHelpers
 
         public bool HashMatching(byte[] hashFirst, byte[] hashSecond)
         {
-
-            if (hashFirst.SequenceEqual(hashSecond))
-            {
-                return true;
-            }
-
-            return false;
+            return hashFirst.SequenceEqual(hashSecond);
         }
     }
 }
