@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using UploadService.Configurations.UploadStrategies;
@@ -15,6 +17,7 @@ using UploadService.Utilities.HashHelpers;
 using UploadService.Utilities.IO_Helpers;
 using UploadService.Utilities.UploadFiles;
 using UploadServiceDatabase.Context;
+using UploadServiceDatabase.Context.ContextFactory;
 using UploadServiceDatabase.Repositories;
 
 namespace UploadService
@@ -46,11 +49,17 @@ namespace UploadService
 
                         return new FtpClient(host, username, pass, port);
                     });
-                    
+
+
                     var connString = hostContext.Configuration.GetSection("AppSettings")
-                        .GetSection("connectionString").Value;
-                    services.AddDbContext<UploadServiceContext>(options => options.UseSqlite(connString));
-                    
+                        .GetSection("DefaultConnection").Value;
+
+                    services.AddDbContext<UploadServiceContext>(options => options.UseSqlite(connString),
+                        ServiceLifetime.Singleton);
+
+                    services.AddSingleton<IContextFactory, ContextFactory>();
+
+
                     services.AddSingleton<IIoHelper, IoHelper>();
                     services.AddSingleton<IHashHelper, HashHelper>();
                     services.AddSingleton<IUploadServiceRepository, UploadServiceRepository>();
@@ -63,11 +72,6 @@ namespace UploadService
                     services.AddSingleton<IUploadStrategy<TimeSpecificUpload>, TimeSpecificStrategy>();
                     services.AddSingleton<IUploadStrategy<UploadOnCreate>, OnCreateStrategy>();
                     services.AddSingleton<IUploadStrategy<UploadOnChange>, OnChangeStrategy>();
-                    
-                   
-
-                   
-                    
                 }).UseSystemd();
     }
 }

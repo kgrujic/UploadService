@@ -6,7 +6,7 @@ namespace UploadService.Configurations.ServerConfigurations
         public string Username { get; set; }
         public string Password { get; set; }
         public int PortNumber { get; set; }
-        public int MaxFtpSessions { get; set; }
+        public int MaxServerSessions { get; set; }
         public int IdleSessionTimeout { get; set; }
         
    

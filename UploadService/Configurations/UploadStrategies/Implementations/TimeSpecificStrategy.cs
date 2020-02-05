@@ -35,7 +35,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         {
             StartUpUpload(timeSpecificlUploads);
             
-            List<Timer> timerMatrix = new List<Timer>();
 
             foreach (var item in timeSpecificlUploads)
             {
@@ -51,9 +50,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
 
                 timer.Interval = scheduledTime.Subtract(DateTime.Now).TotalMilliseconds;
                 timer.AutoReset = true;
-
-                timerMatrix.Add(timer);
-
+                
                 timer.Elapsed += (sender, e) =>
                 {
                     OnTimedEvent(item, scheduledTime, timer);

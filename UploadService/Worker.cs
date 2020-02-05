@@ -63,9 +63,9 @@ namespace UploadService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-         //  _periodicalStrategy.Upload(_periodicalUploads);
+         // _periodicalStrategy.Upload(_periodicalUploads);
           // _timeStrategy.Upload(_timeSpecificUploads);
-           _onChangeStrategy.Upload(_onChangeUploads);
+          // _onChangeStrategy.Upload(_onChangeUploads);
           // _onCreateStrategy.Upload(_onCreateUploads);
         }
     }

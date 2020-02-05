@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using UploadServiceDatabase.Context;
+using UploadServiceDatabase.Context.ContextFactory;
 using UploadServiceDatabase.DTOs;
 
 namespace UploadServiceDatabase.Repositories
@@ -11,27 +12,28 @@ namespace UploadServiceDatabase.Repositories
     public class UploadServiceRepository : IUploadServiceRepository
     {
         //TODO dependency injection problem
-        private UploadServiceContext _context;
-        public UploadServiceRepository(UploadServiceContext context)
+        private IContextFactory _contextFactory;
+        public UploadServiceRepository(IContextFactory contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
 
         }
 
         public FileDTO GetFileByPath(string path)
         {
-            using (_context)
+            
+            using (var context = _contextFactory.CreateContext())
             {
-                return _context.Files.Find(path);
+                return context.Files.Find(path);
             }
             
         } 
         
         public bool FileExistInDatabase(string path)
         {
-            using (_context)
+            using (var context =_contextFactory.CreateContext())
             {
-                var b = _context.Files.Any(f => f.FilePath == path);
+                var b = context.Files.Any(f => f.FilePath == path);
                 return b;
                 
             }
@@ -40,57 +42,32 @@ namespace UploadServiceDatabase.Repositories
 
         public void InsertFile(FileDTO file)
         {
-            using (_context)
+            using (var context =_contextFactory.CreateContext())
             {
-                _context.Files.Add(file);
-                _context.SaveChanges();
+                context.Files.Add(file);
+                context.SaveChanges();
             }
         }
 
         public void DeleteFile(string path)
         {
-            using (_context)
+            using (var context =_contextFactory.CreateContext())
             {
-                FileDTO file = _context.Files.Find(path);
-                _context.Files.Remove(file);
-                _context.SaveChanges();
+                FileDTO file = context.Files.Find(path);
+                context.Files.Remove(file);
+                context.SaveChanges();
             }
         }
 
         public  void UpdateFile(FileDTO file)
         {
-            using (_context)
+            using (var context =_contextFactory.CreateContext())
             {
-                _context.Files.Update(file);
-                _context.SaveChanges();
+                context.Files.Update(file);
+                context.SaveChanges();
             }
         }
 
-        public void Save()
-        {
-            throw new NotImplementedException();
-        }
-
-
-        private bool disposed = false;        
-    
-        protected virtual void Dispose(bool disposing)        
-        {           using (_context){       
-            if (!this.disposed)            
-            {                
-                if (disposing)                
-                {                    
-                    _context.Dispose();                
-                }
-            }            
-            this.disposed = true;   
-            }
-        }        
-    
-        public void Dispose()        
-        {            
-            Dispose(true);            
-            GC.SuppressFinalize(this);        
-        }   
+ 
     }
 }

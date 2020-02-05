@@ -89,6 +89,10 @@
       <e p="UploadServiceDatabase" t="IncludeRecursive">
         <e p="Class1.cs" t="Include" />
         <e p="Context" t="Include">
+          <e p="ContextFactory" t="Include">
+            <e p="ContextFactory.cs" t="Include" />
+            <e p="IContextFactory.cs" t="Include" />
+          </e>
           <e p="IUploadServiceContext.cs" t="Include" />
           <e p="UploadServiceContext.cs" t="Include" />
         </e>
