@@ -45,7 +45,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         /// <param name="list">List of UploadOnChange objects</param>
         public void Upload(IEnumerable<UploadOnChange> onChangeUploads)
         {
-            StartUpUpload(onChangeUploads);
 
             _watchers = new List<MyFileSystemWatcher>();
 

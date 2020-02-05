@@ -49,8 +49,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         /// <param name="list">List of TimeSpecificUpload objects</param>
         public void Upload(IEnumerable<TimeSpecificUpload> timeSpecificlUploads)
         {
-            StartUpUpload(timeSpecificlUploads);
-
+            
 
             foreach (var item in timeSpecificlUploads)
             {

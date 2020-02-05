@@ -52,8 +52,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         /// <param name="list">List of UploadOnCreate objects</param>
         public void Upload(IEnumerable<UploadOnCreate> onCreateUploads)
         {
-            StartUpUpload(onCreateUploads);
-            
             _watchers = new List<MyFileSystemWatcher>();
 
             foreach (var item in onCreateUploads)

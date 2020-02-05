@@ -10,7 +10,10 @@ namespace UploadService.Utilities.IO_Helpers
             Directory.CreateDirectory(folderPath);
         }
 
-
+        public void MoveFile(string sourceFilePath, string destinationFilePath)
+        {
+            File.Move(sourceFilePath,destinationFilePath,true);
+        }
         public void CopyFile(string sourceFilePath, string destinationFilePath)
         {
             File.Copy(sourceFilePath, destinationFilePath, true);

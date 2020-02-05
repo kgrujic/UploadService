@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,16 +50,27 @@ namespace UploadService
             _onCreateStrategy = onCreateStrategy;
             
             _logger = logger;
+          
         }
         
-        
+        public override Task StartAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Worker started at: {DateTime.Now}");
+            
+            _periodicalStrategy.StartUpUpload(_periodicalUploads);
+            _timeStrategy.StartUpUpload(_timeSpecificUploads);
+            _onCreateStrategy.StartUpUpload(_onCreateUploads);
+            _onChangeStrategy.StartUpUpload(_onChangeUploads);
+
+            return base.StartAsync(cancellationToken);
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-         // _periodicalStrategy.Upload(_periodicalUploads);
+         //_periodicalStrategy.Upload(_periodicalUploads);
           // _timeStrategy.Upload(_timeSpecificUploads);
           // _onChangeStrategy.Upload(_onChangeUploads);
-           _onCreateStrategy.Upload(_onCreateUploads);
+          // _onCreateStrategy.Upload(_onCreateUploads);
         }
     }
 }

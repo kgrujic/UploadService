@@ -1,16 +1,12 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
-using UploadService.DTOs;
-using UploadService.Utilities.Clients;
-using UploadService.Utilities.IO_Helpers;
-using UploadServiceDatabase.DTOs;
-using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Utilities.HashHelpers
 {
+    /// <summary>
+    /// Class HashHelper contains methods for hash value manipulations
+    /// </summary>
     public class HashHelper : IHashHelper
     {
         
@@ -18,7 +14,11 @@ namespace UploadService.Utilities.HashHelpers
         {
            
         }
-        
+        /// <summary>
+        /// GenerateHash method generate hash value from content of file with MD5 algoritam
+        /// </summary>
+        /// <param name="path">string</param>
+        /// <returns>byte array</returns>
         public byte[] GenerateHash(string path)
         {
             try
@@ -40,7 +40,13 @@ namespace UploadService.Utilities.HashHelpers
                 throw;
             }
         }
-
+        
+        /// <summary>
+        /// HashMatching method checks if two hash values are equal
+        /// </summary>
+        /// <param name="hashFirst">byte array </param>
+        /// <param name="hashSecond">byte array </param>
+        /// <returns>bool</returns>
         public bool HashMatching(byte[] hashFirst, byte[] hashSecond)
         {
             return hashFirst.SequenceEqual(hashSecond);

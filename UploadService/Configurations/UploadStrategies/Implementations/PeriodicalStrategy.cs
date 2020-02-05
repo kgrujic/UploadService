@@ -49,7 +49,6 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         /// <param name="list">List of PeriodicalUpload objects</param>
         public void Upload(IEnumerable<PeriodicalUpload> periodicalUploads)
         {
-            StartUpUpload(periodicalUploads);
 
             foreach (var item in periodicalUploads)
             {

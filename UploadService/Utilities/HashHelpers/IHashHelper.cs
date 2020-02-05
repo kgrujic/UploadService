@@ -4,6 +4,9 @@ using UploadService.Utilities.IO_Helpers;
 
 namespace UploadService.Utilities.HashHelpers
 {
+    /// <summary>
+    /// IHashHelper interface for HashHelper service
+    /// </summary>
     public interface IHashHelper
     {
         byte[] GenerateHash(string path);

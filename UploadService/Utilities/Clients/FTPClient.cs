@@ -4,20 +4,22 @@ using System.Net;
 
 namespace UploadService.Utilities.Clients
 {
+    /// <summary>
+    /// FtpClient class implements methods for communication with FTP server
+    /// Implements IServerClient interface
+    /// </summary>
     public class FtpClient : IServerClient
     {
-        private string _host = null;
-        private string _user = null;
-        private string _pass = null;
-        private int _port = 0;
-        private FtpWebRequest _ftpRequest = null;
-        private FtpWebRequest _ftpRequestDelete = null;
-        private FtpWebResponse _ftpResponse = null;
-        private FtpWebResponse _ftpResponseDelete = null;
-        private Stream _ftpStream = null;
+        private string _host;
+        private string _user;
+        private string _pass;
+        private int _port;
+        private FtpWebRequest _ftpRequest;
+        private FtpWebResponse _ftpResponse;
+        private Stream _ftpStream;
         private int _bufferSize = 2048;
 
-     
+
         public FtpClient(string hostIp, string userName, string password, int port)
         {
             _host = hostIp;
@@ -26,8 +28,12 @@ namespace UploadService.Utilities.Clients
             _port = port;
         }
 
-        /* Upload File */
-
+        /// <summary>
+        /// UploadFile method uploads file from local file system to remote FTP server
+        /// </summary>
+        /// <param name="remoteFile">string</param>
+        /// <param name="localFFile">string</param>
+        /// <param name="overwrite">bool</param>
         public void UploadFile(string remoteFile, string localFFile, bool overwrite)
         {
             try
@@ -91,7 +97,10 @@ namespace UploadService.Utilities.Clients
             return;
         }
 
-
+        /// <summary>
+        /// Delete method deletes file from remote FTP server
+        /// </summary>
+        /// <param name="deleteFile">string</param>
         private void Delete(string deleteFile)
         {
             try
@@ -123,6 +132,11 @@ namespace UploadService.Utilities.Clients
             return;
         }
 
+        /// <summary>
+        /// CheckIfFileExists method checks if file exists on remote FTP server
+        /// </summary>
+        /// <param name="filePath">string</param>
+        /// <returns>bool</returns>
         public bool CheckIfFileExists(string filePath)
         {
             var exists = false;
@@ -156,6 +170,11 @@ namespace UploadService.Utilities.Clients
             return exists;
         }
 
+        /// <summary>
+        /// DirectoryExists method checks if directory exists on remote FTP server
+        /// </summary>
+        /// <param name="directory">string</param>
+        /// <returns>bool</returns>
         public bool DirectoryExists(string directory)
         {
             /* Create an FTP Request */

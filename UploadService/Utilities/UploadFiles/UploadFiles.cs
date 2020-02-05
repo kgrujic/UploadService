@@ -7,6 +7,10 @@ using UploadServiceDatabase.Repositories;
 
 namespace UploadService.Utilities.UploadFiles
 {
+    /// <summary>
+    /// UploadFiles class contains method for file upload on remote FTP server and store hash content in database
+    /// Implements IUpload interface
+    /// </summary>
     public class UploadFiles : IUpload
     {
         private IServerClient _client;
@@ -20,7 +24,12 @@ namespace UploadService.Utilities.UploadFiles
             _hashHelper = hashHelper;
         }
         
-        
+        /// <summary>
+        /// UploadFile method  uploads file on remote server and store generated hash from content in database, with validation of file existence on those locations and validation of changes
+        /// </summary>
+        /// <param name="localFilePath">string</param>
+        /// <param name="remoteFolder">string</param>
+        /// <returns></returns>
         public async Task UploadFile(string localFilePath, string remoteFolder)
         {
             var remoteFilePath = Path.Combine("/home/katarina/", remoteFolder, Path.GetFileName(localFilePath));
