@@ -100,6 +100,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 _archive.MoveFileToArchiveFolder(dto.LocalFilePath,
                     Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
             }
+            _logger.LogInformation($"Folder at {item.LocalFolderPath} location is uploaded at: {DateTime.Now}");
         }
 
         /// <summary>

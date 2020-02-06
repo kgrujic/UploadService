@@ -60,7 +60,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 var timer = new Timer
                 {
                     Enabled = true,
-                    Interval = item.Interval,
+                    Interval = TimeSpan.FromMinutes(item.Interval).TotalMilliseconds,
                     AutoReset = true
                 };
 
@@ -95,6 +95,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
                 _archive.MoveFileToArchiveFolder(dto.LocalFilePath,
                     Path.Combine(dto.ArchiveFolder, Path.GetFileName(dto.LocalFilePath)));
             }
+            _logger.LogInformation($"Folder at {item.LocalFolderPath} location is periodically uploaded at: {DateTime.Now}");
+            
         }
 
         /// <summary>
