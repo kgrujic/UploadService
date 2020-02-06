@@ -3,6 +3,9 @@ using UploadServiceDatabase.DTOs;
 
 namespace UploadServiceDatabase.Repositories
 {
+    /// <summary>
+    /// IUploadServiceRepository interface for UploadServiceRepository
+    /// </summary>
     public interface IUploadServiceRepository 
     {
         FileDTO GetFileByPath(string path);

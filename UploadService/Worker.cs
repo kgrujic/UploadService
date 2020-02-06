@@ -17,6 +17,9 @@ using UploadServiceDatabase.Repositories;
 
 namespace UploadService
 {
+    /// <summary>
+    /// Worker class contains methods for starting and execution of service
+    /// </summary>
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
@@ -52,19 +55,30 @@ namespace UploadService
             _logger = logger;
           
         }
-        
+        /// <summary>
+        /// StartAsync method is called when service is started
+        /// StartUpUpload methods from strategies are called
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Task</returns>
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Worker started at: {DateTime.Now}");
             
-            _periodicalStrategy.StartUpUpload(_periodicalUploads);
-            _timeStrategy.StartUpUpload(_timeSpecificUploads);
-            _onCreateStrategy.StartUpUpload(_onCreateUploads);
-            _onChangeStrategy.StartUpUpload(_onChangeUploads);
+            //_periodicalStrategy.StartUpUpload(_periodicalUploads);
+            //_timeStrategy.StartUpUpload(_timeSpecificUploads);
+            //_onCreateStrategy.StartUpUpload(_onCreateUploads);
+            //_onChangeStrategy.StartUpUpload(_onChangeUploads);
 
             return base.StartAsync(cancellationToken);
         }
-
+        
+        /// <summary>
+        /// ExecuteAsync method is called when service is working
+        /// Upload methods from strategies are called
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Task</returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
          //_periodicalStrategy.Upload(_periodicalUploads);

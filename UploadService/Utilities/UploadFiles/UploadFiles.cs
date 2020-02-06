@@ -8,7 +8,7 @@ using UploadServiceDatabase.Repositories;
 namespace UploadService.Utilities.UploadFiles
 {
     /// <summary>
-    /// UploadFiles class contains method for file upload on remote FTP server and store hash content in database
+    /// UploadFiles class contains method for file uploading on remote FTP server and storing hash content in database
     /// Implements IUpload interface
     /// </summary>
     public class UploadFiles : IUpload
