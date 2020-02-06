@@ -28,10 +28,7 @@ namespace UploadService
         private IEnumerable<TimeSpecificUpload> _timeSpecificUploads;
         private IEnumerable<UploadOnChange> _onChangeUploads;
         private IEnumerable<UploadOnCreate> _onCreateUploads;
-
-
-        private IServerConfiguration _ftpServerConfiguration;
-   
+        
         
         private IUploadStrategy<PeriodicalUpload> _periodicalStrategy;
         private IUploadStrategy<TimeSpecificUpload> _timeStrategy;
@@ -65,10 +62,10 @@ namespace UploadService
         {
             _logger.LogInformation($"Worker started at: {DateTime.Now}");
             
-            //_periodicalStrategy.StartUpUpload(_periodicalUploads);
-            //_timeStrategy.StartUpUpload(_timeSpecificUploads);
-            //_onCreateStrategy.StartUpUpload(_onCreateUploads);
-            //_onChangeStrategy.StartUpUpload(_onChangeUploads);
+            _periodicalStrategy.StartUpUpload(_periodicalUploads);
+            _timeStrategy.StartUpUpload(_timeSpecificUploads);
+            _onCreateStrategy.StartUpUpload(_onCreateUploads);
+            _onChangeStrategy.StartUpUpload(_onChangeUploads);
 
             return base.StartAsync(cancellationToken);
         }
@@ -82,9 +79,9 @@ namespace UploadService
         {
            
                 _periodicalStrategy.Upload(_periodicalUploads);
-                 _timeStrategy.Upload(_timeSpecificUploads);
+                _timeStrategy.Upload(_timeSpecificUploads);
                  _onChangeStrategy.Upload(_onChangeUploads);
-                 _onCreateStrategy.Upload(_onCreateUploads);
+                _onCreateStrategy.Upload(_onCreateUploads);
             
        
         }

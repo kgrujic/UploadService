@@ -52,7 +52,7 @@
             <e p="IArchive.cs" t="Include" />
           </e>
           <e p="CleaningOutdatedFiles" t="Include">
-            <e p="CleanOudatedFiles.cs" t="Include" />
+            <e p="CleanOutdatedFiles.cs" t="Include" />
             <e p="IClineable.cs" t="Include" />
           </e>
           <e p="Clients" t="Include">

@@ -9,11 +9,11 @@ namespace UploadService.Utilities.CleaningOutdatedFiles
     /// CleanOudatedFiles class handle deleting of outdated files
     /// Implements IClineable interface
     /// </summary>
-    public class CleanOudatedFiles : IClineable
+    public class CleanOutdatedFiles : IClineable
     {
         private ILogger<Worker> _logger;
 
-        public CleanOudatedFiles(ILogger<Worker> logger)
+        public CleanOutdatedFiles(ILogger<Worker> logger)
         {
             _logger = logger;
         }

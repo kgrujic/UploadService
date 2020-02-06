@@ -68,7 +68,7 @@ namespace UploadService
 
                     services.AddSingleton<IUpload, UploadFiles>();
                     services.AddSingleton<IArchive, ArchiveFiles>();
-                    services.AddSingleton<IClineable, CleanOudatedFiles>();
+                    services.AddSingleton<IClineable, CleanOutdatedFiles>();
 
                     services.AddSingleton<IUploadStrategy<PeriodicalUpload>, PeriodicalStrategy>();
                     services.AddSingleton<IUploadStrategy<TimeSpecificUpload>, TimeSpecificStrategy>();
