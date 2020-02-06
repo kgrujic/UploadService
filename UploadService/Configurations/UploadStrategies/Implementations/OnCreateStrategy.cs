@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
 using UploadService.Utilities;
@@ -19,19 +21,20 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private IUpload _upload;
         private IArchive _archive;
         private IClineable _clean;
+        private ILogger<Worker> _logger;
 
         private List<MyFileSystemWatcher> _watchers;
         
         /// <summary>
         /// OnCreateStrategy constructor
         /// </summary>
-        /// <param name="upload"></param>
-        public OnCreateStrategy(IUpload upload, IArchive archive, IClineable clean)
+        public OnCreateStrategy(IUpload upload, IArchive archive, IClineable clean,ILogger<Worker> logger)
         {
            
             _upload = upload;
             _archive = archive;
             _clean = clean;
+            _logger = logger;
         }
         /// <summary>
         /// StartUpUpload method uploads changes that happened in watched folder when service was inactive
@@ -43,6 +46,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             {
                 UploadFolder(item);
             }
+            
+            _logger.LogInformation($"Start up upload for Upload On Create list happened at: {DateTime.Now}");
         }
 
 

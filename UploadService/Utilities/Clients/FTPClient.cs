@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net;
+using Microsoft.Extensions.Logging;
 
 namespace UploadService.Utilities.Clients
 {
@@ -18,14 +19,16 @@ namespace UploadService.Utilities.Clients
         private FtpWebResponse _ftpResponse;
         private Stream _ftpStream;
         private int _bufferSize = 2048;
+        private ILogger<Worker> _logger;
 
 
-        public FtpClient(string hostIp, string userName, string password, int port)
+        public FtpClient(string hostIp, string userName, string password, int port, ILogger<Worker> logger)
         {
             _host = hostIp;
             _user = userName;
             _pass = password;
             _port = port;
+            _logger = logger;
         }
 
         /// <summary>
@@ -75,19 +78,18 @@ namespace UploadService.Utilities.Clients
                                 _ftpStream.Write(byteBuffer, 0, bytesSent);
                                 bytesSent = localFileStream.Read(byteBuffer, 0, _bufferSize);
                             }
-
-                            //Console.WriteLine(localFFile);
+                            
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.ToString());
+                            _logger.LogError(ex.ToString());
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                _logger.LogError(e.ToString());
             }
             finally
             {
@@ -122,7 +124,7 @@ namespace UploadService.Utilities.Clients
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
+                _logger.LogError(ex.ToString());
             }
             finally
             {

@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using Autofac.Extras.Moq;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using UploadService;
 using UploadService.Utilities.ArchiveFiles;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.IO_Helpers;
@@ -12,15 +14,17 @@ namespace UploadServiceTest.UtilitiesTests.ArchiveFilesTests
     public class ArchiveFilesTests
     {
         private IArchive _archive;
-        private Mock<IIoHelper> ioHelperMock;
+        private Mock<IIoHelper> _ioHelperMock;
+        private Mock<ILogger<Worker>> _loggerMock;
 
         [SetUp]
         public void Setup()
         {
            
             var mocks = new MockRepository(MockBehavior.Default);
-            ioHelperMock = mocks.Create<IIoHelper>();
-            _archive = new ArchiveFiles(ioHelperMock.Object);
+            _ioHelperMock = mocks.Create<IIoHelper>();
+            _loggerMock = mocks.Create<ILogger<Worker>>();
+            _archive = new ArchiveFiles(_ioHelperMock.Object, _loggerMock.Object);
         }
 
         [Test]

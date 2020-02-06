@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.Utilities;
 using UploadService.Utilities.UploadFiles;
@@ -14,16 +16,17 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
     public class OnChangeStrategy : IUploadStrategy<UploadOnChange>
     {
         private IUpload _upload;
+        private ILogger<Worker> _logger;
 
         private List<MyFileSystemWatcher> _watchers;
 
         /// <summary>
         /// OnChangeStrategy constructor
         /// </summary>
-        /// <param name="upload"></param>
-        public OnChangeStrategy(IUpload upload)
+        public OnChangeStrategy(IUpload upload, ILogger<Worker> logger)
         {
             _upload = upload;
+            _logger = logger;
         }
 
         /// <summary>
@@ -36,6 +39,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             {
                 _upload.UploadFile(file.LocalFilePath, file.RemoteFolder);
             }
+            
+            _logger.LogInformation($"Start up upload for Upload On Change list happened at: {DateTime.Now}");
         }
 
 
@@ -104,6 +109,7 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private async Task OnChangeEvent(string localFilePath, string remoteFolder)
         {
             await _upload.UploadFile(localFilePath, remoteFolder);
+
         }
     }
 }

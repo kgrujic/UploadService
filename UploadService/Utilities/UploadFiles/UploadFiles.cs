@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using UploadService.Utilities.Clients;
 using UploadService.Utilities.HashHelpers;
 using UploadServiceDatabase.DTOs;
@@ -16,12 +18,14 @@ namespace UploadService.Utilities.UploadFiles
         private IServerClient _client;
         private IUploadServiceRepository _repository;
         private IHashHelper _hashHelper;
+        private ILogger<Worker> _logger;
 
-        public UploadFiles(IServerClient client, IUploadServiceRepository repository, IHashHelper hashHelper)
+        public UploadFiles(IServerClient client, IUploadServiceRepository repository, IHashHelper hashHelper, ILogger<Worker> logger)
         {
             _client = client;
             _repository = repository;
             _hashHelper = hashHelper;
+            _logger = logger;
         }
         
         /// <summary>
@@ -29,10 +33,10 @@ namespace UploadService.Utilities.UploadFiles
         /// </summary>
         /// <param name="localFilePath">string</param>
         /// <param name="remoteFolder">string</param>
-        /// <returns></returns>
+        /// <returns>Task</returns>
         public async Task UploadFile(string localFilePath, string remoteFolder)
         {
-            var remoteFilePath = Path.Combine("/home/katarina/", remoteFolder, Path.GetFileName(localFilePath));
+            var remoteFilePath = Path.Combine(remoteFolder, Path.GetFileName(localFilePath));
 
             var localHash = _hashHelper.GenerateHash(localFilePath);
 
@@ -41,23 +45,25 @@ namespace UploadService.Utilities.UploadFiles
                 var hashFromDb = _repository.GetFileByPath(localFilePath).HashedContent;
                 if (!_hashHelper.HashMatching(localHash, hashFromDb))
                 {
-                    _client.UploadFile(remoteFilePath, localFilePath, true);
-
                     var dto = new FileDTO()
                     {
                         FilePath = localFilePath, HashedContent = localHash
                     };
+                    
+                    _client.UploadFile(remoteFilePath, localFilePath, true);
                     _repository.UpdateFile(dto);
+                    
                 }
             }
 
             else
             {
-                _client.UploadFile(remoteFilePath, localFilePath, false);
                 var dto = new FileDTO()
                 {
                     FilePath = localFilePath, HashedContent = localHash
                 };
+                _client.UploadFile(remoteFilePath, localFilePath, false);
+                
                 if (_repository.FileExistInDatabase(localFilePath))
                 {
                     _repository.UpdateFile(dto);
@@ -66,9 +72,10 @@ namespace UploadService.Utilities.UploadFiles
                 {
                     _repository.InsertFile(dto);
                 }
-
-          
+                
             }
+            
+            _logger.LogInformation($"File {Path.GetFileName(localFilePath)} from location {localFilePath} is uploaded on remote server in folder {remoteFolder}  at: {DateTime.Now}");
         }
     }
 }

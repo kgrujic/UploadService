@@ -77,14 +77,22 @@ namespace UploadService
         /// ExecuteAsync method is called when service is working
         /// Upload methods from strategies are called
         /// </summary>
-        /// <param name="cancellationToken"></param>
         /// <returns>Task</returns>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-         //_periodicalStrategy.Upload(_periodicalUploads);
-          // _timeStrategy.Upload(_timeSpecificUploads);
-          // _onChangeStrategy.Upload(_onChangeUploads);
-          // _onCreateStrategy.Upload(_onCreateUploads);
+           
+                //_periodicalStrategy.Upload(_periodicalUploads);
+                // _timeStrategy.Upload(_timeSpecificUploads);
+                 _onChangeStrategy.Upload(_onChangeUploads);
+                // _onCreateStrategy.Upload(_onCreateUploads);
+            
+       
+        }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Worker stoped at: {DateTime.Now}");
+            return base.StopAsync(cancellationToken);
         }
     }
 }

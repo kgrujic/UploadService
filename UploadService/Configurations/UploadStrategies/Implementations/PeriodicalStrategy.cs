@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Timers;
+using Microsoft.Extensions.Logging;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
 using UploadService.DTOs;
 using UploadService.Utilities.ArchiveFiles;
@@ -18,17 +20,18 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
         private IUpload _upload;
         private IArchive _archive;
         private IClineable _clean;
+        private ILogger<Worker> _logger;
 
         /// <summary>
         /// PeriodicalStrategy constructor
         /// </summary>
-        /// <param name="upload"></param>
         public PeriodicalStrategy(IUpload upload,
-            IArchive archive, IClineable clean)
+            IArchive archive, IClineable clean,ILogger<Worker> logger)
         {
             _upload = upload;
             _archive = archive;
             _clean = clean;
+            _logger = logger;
         }
 
         /// <summary>
@@ -41,6 +44,8 @@ namespace UploadService.Configurations.UploadStrategies.Implementations
             {
                 UploadFolder(item);
             }
+            
+            _logger.LogInformation($"Start up upload for Periodical Upload list happened at: {DateTime.Now}");
         }
 
         /// <summary>

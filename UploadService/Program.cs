@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using UploadService.Configurations.UploadStrategies;
 using UploadService.Configurations.UploadStrategies.Implementations;
 using UploadService.Configurations.UploadTypeConfgurations.Implementations;
@@ -27,6 +28,7 @@ namespace UploadService
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
+            
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -46,8 +48,8 @@ namespace UploadService
                             .GetSection("ftpServerConfiguration").GetSection("Password").Value;
                         var port = Convert.ToInt32(hostContext.Configuration.GetSection("AppSettings")
                             .GetSection("ftpServerConfiguration").GetSection("PortNumber").Value);
-
-                        return new FtpClient(host, username, pass, port);
+                        var worker = u.GetRequiredService<ILogger<Worker>>();
+                        return new FtpClient(host, username, pass, port, worker);
                     });
 
 
