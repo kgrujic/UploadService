@@ -62,10 +62,12 @@ namespace UploadService
         {
             _logger.LogInformation($"Worker started at: {DateTime.Now}");
             
+            
             _periodicalStrategy.StartUpUpload(_periodicalUploads);
             _timeStrategy.StartUpUpload(_timeSpecificUploads);
             _onCreateStrategy.StartUpUpload(_onCreateUploads);
             _onChangeStrategy.StartUpUpload(_onChangeUploads);
+            
 
             return base.StartAsync(cancellationToken);
         }

@@ -37,7 +37,11 @@ namespace UploadService
                 {
                     services.AddHostedService<Worker>();
                     services.Configure<AppSettings>(hostContext.Configuration.GetSection("AppSettings"));
-
+                    
+                    services.AddDbContext<UploadServiceContext>(options => options.UseSqlite(hostContext
+                            .Configuration.GetConnectionString("DefaultConnection")),
+                        ServiceLifetime.Singleton);
+                    
                     services.AddSingleton<IServerClient, FtpClient>(u =>
                     {
                         var host = hostContext.Configuration.GetSection("AppSettings")
@@ -51,13 +55,8 @@ namespace UploadService
                         var worker = u.GetRequiredService<ILogger<Worker>>();
                         return new FtpClient(host, username, pass, port, worker);
                     });
+                    
 
-
-                    var connString = hostContext.Configuration.GetSection("AppSettings")
-                        .GetSection("DefaultConnection").Value;
-
-                    services.AddDbContext<UploadServiceContext>(options => options.UseSqlite(connString),
-                        ServiceLifetime.Singleton);
 
                     services.AddSingleton<IContextFactory, ContextFactory>();
 
